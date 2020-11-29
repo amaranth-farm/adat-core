@@ -1,0 +1,37 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sat Nov 28 07:44:36 2020
+[*]
+[dumpfile] "/home/jack/HDL/src/adat/checker-test.vcd"
+[dumpfile_mtime] "Sat Nov 28 07:44:18 2020"
+[dumpfile_size] 85984
+[savefile] "/home/jack/HDL/src/adat/adat-receiver.gtkw"
+[timestart] 0
+[size] 3832 2089
+[pos] -1 -1
+*-17.118139 248200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 488
+[signals_width] 468
+[sst_expanded] 1
+[sst_vpaned_height] 654
+@28
+top.adat_clk_in
+top.adat_in
+@24
+[color] 3
+top.bitcounter[31:0]
+[color] 2
+top.max_bitcounter[31:0]
+[color] 2
+top.last_max[31:0]
+top.three_quarters_of_last
+@28
+[color] 1
+top.frame_start
+@24
+[color] 1
+top.adat_frametime[31:0]
+@28
+top.clk_in
+[pattern_trace] 1
+[pattern_trace] 0
