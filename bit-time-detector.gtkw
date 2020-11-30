@@ -1,0 +1,39 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Mon Nov 30 21:22:42 2020
+[*]
+[dumpfile] "/home/jack/HDL/src/adat/bit-time-detector.vcd"
+[dumpfile_mtime] "Mon Nov 30 21:21:06 2020"
+[dumpfile_size] 269194
+[savefile] "/home/jack/HDL/src/adat/bit-time-detector.gtkw"
+[timestart] 2131500
+[size] 3832 2089
+[pos] -1 -1
+*-15.643217 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[sst_width] 462
+[signals_width] 430
+[sst_expanded] 1
+[sst_vpaned_height] 654
+@28
+top.adat_in
+@24
+top.sync_counter.counter_out[31:0]
+top.divided_counter_out[31:0]
+top.max_sync_counter[31:0]
+top.last_max[31:0]
+@28
+[color] 2
+top.got_sync_frame
+[color] 2
+top.last_got_sync_frame
+@29
+[color] 2
+top.got_sync_frame_pulse
+@24
+[color] 1
+top.bit_length_out[31:0]
+@28
+top.clk_in
+[pattern_trace] 1
+[pattern_trace] 0

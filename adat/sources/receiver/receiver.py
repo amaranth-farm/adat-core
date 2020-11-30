@@ -4,71 +4,44 @@ from nmigen import *
 from nmigen.sim import *
 from nmigen.back import verilog, rtlil
 
+from dividingcounter import DividingCounter
+from bittimedetector import ADATBitTimeDetector
+
 class ADATReceiver(Elaboratable):
     def __init__(self):
         self.adat_in        = Signal()
-        self.adat_clk_in    = Signal()
         self.clk_in         = Signal()
-
-    def setup_clockdomains(self, m):
-        cd_adat = ClockDomain(reset_less=True)
-        cd_adat.clk = self.adat_clk_in
-        cd_sync = ClockDomain()       
-        cd_sync.clk = self.clk_in
-        m.domains.adat = cd_adat
-        m.domains.sync = cd_sync
 
     def elaborate(self, platform):
         m = Module()
-        self.setup_clockdomains(m)
+        sync_time_detector = ADATBitTimeDetector()
+        m.submodules.sync_time_detector = sync_time_detector
 
-        bitcounter = Signal(32)
-        max_bitcounter = Signal(32)
-        adat_syncbitstime = Signal(32)
-        adat_nibbletime = Signal(32)
-        last_max = Signal(32)
-        frame_start = Signal()
+        got_sync = Signal()
+        bit_time = Signal(10)
+        bit_counter = Signal(10)
 
-        m.d.comb += adat_nibbletime.eq(adat_syncbitstime >> 1)
-
-        with m.If(~self.adat_in):
-            m.d.sync += bitcounter.eq(bitcounter + 1)
-            with m.If(bitcounter > max_bitcounter):
-                m.d.sync += [
-                    max_bitcounter.eq(bitcounter)
-                ]
-        with m.Else(): # adat_in is 1
-            # if max_bitcounter is greater than 3/4 of its last value, we have a frame start 
-            with m.If(max_bitcounter > 50):
-                with m.If(max_bitcounter > ((last_max << 1) + last_max) >> 2):                
-                    m.d.sync += [
-                        frame_start.eq(1),
-                        adat_syncbitstime.eq(max_bitcounter)
-                    ]
-            with m.Else():
-                m.d.sync += [
-                    max_bitcounter.eq(bitcounter),
-                    frame_start.eq(0)
-                ]
-
-            m.d.sync += [
-                last_max.eq(max_bitcounter),
-                bitcounter.eq(0),
-            ]
-
+        m.d.comb += [
+            sync_time_detector.clk_in.eq(self.clk_in),
+            sync_time_detector.adat_in.eq(self.adat_in),
+            got_sync.eq(sync_time_detector.bit_length_out > 0)
+        ]
         
         with m.FSM() as fsm:
             with m.State("SYNC"):
-                with m.If(frame_start):
-                    m.d.sync += frame_start.eq(0)
+                with m.If(got_sync):
+                    m.d.sync += [
+                        bit_time.eq(sync_time_detector.bit_length_out),
+                        bit_counter.eq(2) # due to sync delays we are already at position 2 here
+                    ]
                     m.next = "READ_FRAME"
 
             with m.State("READ_FRAME"):
-                with m.If(bitcounter > max_bitcounter):
-                    m.d.sync += [
-                        max_bitcounter.eq(bitcounter)
-                    ]
-                    m.next = "SYNC"
+                with m.If(bit_counter < bit_time):
+                    m.d.sync += bit_counter.eq(bit_counter + 1)
+                with m.Else():
+                    m.d.sync += bit_counter.eq(0)
+                    pass
                     
         return m
 
@@ -94,7 +67,7 @@ if __name__ == "__main__":
 
     def sync_process():
         for _ in range(int(clockratio) * cycles):
-            yield Tick()
+            yield Tick("sync")
 
     def adat_process():
         testdata = one_empty_adat_frame() + generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample()
@@ -104,5 +77,5 @@ if __name__ == "__main__":
 
     sim.add_sync_process(sync_process, domain="sync")
     sim.add_sync_process(adat_process, domain="adat")
-    with sim.write_vcd('checker-test.vcd', traces=[receiver.adat_clk_in, receiver.adat_in, receiver.clk_in]):
+    with sim.write_vcd('receiver-smoke-test.vcd', traces=[receiver.adat_in, receiver.clk_in]):
         sim.run()
