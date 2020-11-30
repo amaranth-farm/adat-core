@@ -1,12 +1,12 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sun Nov 29 23:18:34 2020
+[*] Mon Nov 30 00:09:45 2020
 [*]
 [dumpfile] "/home/jack/HDL/src/adat/dividing-counter.vcd"
-[dumpfile_mtime] "Sun Nov 29 23:18:31 2020"
-[dumpfile_size] 2496
+[dumpfile_mtime] "Mon Nov 30 00:08:26 2020"
+[dumpfile_size] 2525
 [savefile] "/home/jack/HDL/src/adat/dividing-counter.gtkw"
-[timestart] 0
+[timestart] 60000
 [size] 3832 2089
 [pos] -1 -1
 *-22.000000 16080000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
@@ -16,11 +16,13 @@
 [sst_vpaned_height] 654
 @28
 top.clk
+@29
+top.rst_in
+@28
 top.active_in
-@25
+@24
 [color] 3
 top.counter_out[4:0]
-@24
 [color] 2
 top.dividing_cycle_counter[2:0]
 @28
