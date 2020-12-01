@@ -17,31 +17,60 @@ class ADATReceiver(Elaboratable):
         sync_time_detector = ADATBitTimeDetector()
         m.submodules.sync_time_detector = sync_time_detector
 
-        got_sync = Signal()
-        bit_time = Signal(10)
-        bit_counter = Signal(10)
+        got_sync           = Signal()
+        bit_time           = Signal(10)
+        bit_counter        = Signal(10)
+        bit_counter_enable = Signal()
+
+        last_adat_in = Signal()
 
         m.d.comb += [
             sync_time_detector.clk_in.eq(self.clk_in),
             sync_time_detector.adat_in.eq(self.adat_in),
             got_sync.eq(sync_time_detector.bit_length_out > 0)
         ]
+
+        m.d.sync += [
+            last_adat_in.eq(self.adat_in)
+        ]
+
+        #bit counter
+        with m.If(bit_counter_enable):
+            with m.If(bit_counter < bit_time):
+                m.d.sync += bit_counter.eq(bit_counter + 1)
+            with m.Else():
+                m.d.sync += bit_counter.eq(0)
+            # reset bit counter on each positive edge of adat_in
+            # to prevent counter drift
+            with m.If(self.adat_in & ~last_adat_in):
+                m.d.sync += bit_counter.eq(0)
+            # we sample the bit in the middle
         
         with m.FSM() as fsm:
             with m.State("SYNC"):
                 with m.If(got_sync):
                     m.d.sync += [
                         bit_time.eq(sync_time_detector.bit_length_out),
-                        bit_counter.eq(2) # due to sync delays we are already at position 2 here
+                        bit_counter.eq(3) # due to sync delays we are already at position 2 here
                     ]
                     m.next = "READ_FRAME"
 
             with m.State("READ_FRAME"):
-                with m.If(bit_counter < bit_time):
-                    m.d.sync += bit_counter.eq(bit_counter + 1)
+                m.d.sync += bit_counter_enable.eq(1)
+                with m.If(bit_counter == bit_time >> 1):
+                    m.next = "READ_SYNC_BIT"
+
+            with m.State("READ_SYNC_BIT"):
+                # sync bit must be high or we are out of sync
+                with m.If(~self.adat_in):
+                    m.d.sync += bit_counter_enable.eq(0)
+                    m.next = "SYNC"
                 with m.Else():
-                    m.d.sync += bit_counter.eq(0)
-                    pass
+                    m.next = "READ_DATA_NIBBLE"
+
+            with m.State("READ_DATA_NIBBLE"):
+                pass
+
                     
         return m
 

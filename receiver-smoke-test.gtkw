@@ -1,26 +1,32 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Mon Nov 30 22:03:47 2020
+[*] Tue Dec  1 01:09:50 2020
 [*]
 [dumpfile] "/home/jack/HDL/src/adat/receiver-smoke-test.vcd"
-[dumpfile_mtime] "Mon Nov 30 21:58:01 2020"
-[dumpfile_size] 321529
+[dumpfile_mtime] "Tue Dec  1 01:05:39 2020"
+[dumpfile_size] 322535
 [savefile] "/home/jack/HDL/src/adat/receiver-smoke-test.gtkw"
-[timestart] 2228400
+[timestart] 61271800
 [size] 3832 2089
 [pos] -1 -1
-*-15.518014 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-15.955053 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [sst_width] 374
 [signals_width] 286
 [sst_expanded] 1
 [sst_vpaned_height] 654
 @28
+[color] 3
 top.adat_in
+@24
+[color] 5
+top.bit_counter[9:0]
+@28
 top.clk_in
+@29
+[color] 2
 top.fsm_state
 @24
 top.bit_time[9:0]
-top.bit_counter[9:0]
 [pattern_trace] 1
 [pattern_trace] 0
