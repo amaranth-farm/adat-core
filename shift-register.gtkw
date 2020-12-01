@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Dec  1 02:04:08 2020
+[*]
+[dumpfile] "/home/jack/HDL/src/adat/shift-register.vcd"
+[dumpfile_mtime] "Tue Dec  1 02:01:47 2020"
+[dumpfile_size] 3391
+[savefile] "/home/jack/HDL/src/adat/shift-register.gtkw"
+[timestart] 25412000
+[size] 3832 2089
+[pos] -1 -1
+*-19.041714 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 374
+[signals_width] 270
+[sst_expanded] 1
+[sst_vpaned_height] 654
+@28
+top.rst
+top.clk
+[color] 1
+top.enable_in
+[color] 3
+top.bit_in
+@29
+[color] 2
+top.value_out[23:0]
+[pattern_trace] 1
+[pattern_trace] 0
