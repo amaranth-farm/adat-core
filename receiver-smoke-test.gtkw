@@ -1,34 +1,49 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Dec  1 01:34:00 2020
+[*] Thu Dec  3 04:34:39 2020
 [*]
 [dumpfile] "/home/jack/HDL/src/adat/receiver-smoke-test.vcd"
-[dumpfile_mtime] "Tue Dec  1 01:33:48 2020"
-[dumpfile_size] 430368
+[dumpfile_mtime] "Thu Dec  3 04:34:28 2020"
+[dumpfile_size] 355809
 [savefile] "/home/jack/HDL/src/adat/receiver-smoke-test.gtkw"
-[timestart] 3990000
+[timestart] 2167000
 [size] 3832 2089
 [pos] -1 -1
-*-18.955053 57125000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-15.986155 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
-[sst_width] 374
-[signals_width] 286
+[sst_width] 535
+[signals_width] 414
 [sst_expanded] 1
 [sst_vpaned_height] 654
 @28
 [color] 3
 top.adat_in
 top.adat_in$1
-[color] 2
-top.sampled_bit
-@24
 [color] 4
-top.bit_counter[9:0]
-@28
 top.clk_in
 [color] 2
 top.fsm_state
+[color] 2
+top.got_sync
 @24
 top.bit_time[9:0]
+@28
+[color] 3
+top.bit_time_counter_enable
+@24
+[color] 3
+top.bit_time_counter[9:0]
+@25
+[color] 7
+top.nibble_bitcounter[2:0]
+@24
+[color] 7
+top.num_nibbles_counter[1:0]
+@28
+[color] 7
+top.reading_user_data
+@24
+[color] 7
+top.active_channel[2:0]
 [pattern_trace] 1
 [pattern_trace] 0
