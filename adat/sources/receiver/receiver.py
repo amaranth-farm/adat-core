@@ -28,16 +28,17 @@ class ADATReceiver(Elaboratable):
         user_bits = ShiftRegister(24)
         m.submodules += user_bits
 
-        got_sync                = Signal()
-        bit_time                = Signal(10)
-        bit_time_counter        = Signal(10)
-        bit_time_counter_enable = Signal()
-        nibble_bitcounter       = Signal(3)
-        num_nibbles_counter     = Signal(2)
-        active_channel          = Signal(3)
-        reading_user_data       = Signal()
-
-        last_adat_in            = Signal()
+        got_sync                 = Signal()
+        bit_time                 = Signal(10)
+        bit_time_counter         = Signal(10)
+        bit_time_counter_enable  = Signal()
+        nibble_bitcounter        = Signal(3)
+        num_nibbles_counter      = Signal(2)
+        num_nibbles_counter_prev = Signal(2)
+        active_channel           = Signal(3)
+        reading_user_data        = Signal()
+ 
+        last_adat_in             = Signal()
 
         for channel_no in range(8):
             m.d.comb += self.channels_out[channel_no].eq(channel_outputs[channel_no].value_out)
@@ -84,17 +85,17 @@ class ADATReceiver(Elaboratable):
 
             with m.State("READ_SYNC_BIT"):
                 with m.If(active_channel < 7):
-                    with m.If((bit_time_counter == bit_time)):
+                    with m.If((bit_time_counter == bit_time >> 1)):
                         m.d.sync += nibble_bitcounter.eq(0)
                         m.next = "READ_DATA_NIBBLE"
                 with m.Else():
                     m.ext = "SYNC"
 
             with m.State("READ_DATA_NIBBLE"):
-                with m.If((bit_time_counter > (bit_time >> 1)) & (nibble_bitcounter == 4)):
+                with m.If((bit_time_counter > (bit_time >> 1)) & (nibble_bitcounter == 4) & self.adat_in):
                     m.d.sync += [ 
-                        num_nibbles_counter.eq(num_nibbles_counter + 1),
-                        nibble_bitcounter.eq(0)
+                        num_nibbles_counter_prev.eq(num_nibbles_counter),
+                        num_nibbles_counter.eq(num_nibbles_counter + 1)
                     ]
                     with m.If((num_nibbles_counter == 3) & (~reading_user_data)):
                         m.d.sync += active_channel.eq(active_channel + 1)
@@ -111,13 +112,16 @@ class ADATReceiver(Elaboratable):
                             m.d.sync += channel_outputs[active_channel].enable_in.eq(0)
                     with m.Else(): # reading user data
                         with m.If(bit_time_counter == bit_time >> 1):
-                            m.d.sync += [
-                                user_bits.enable_in.eq(1),
-                                user_bits.bit_in.eq(self.adat_in),
-                                nibble_bitcounter.eq(nibble_bitcounter + 1)
-                            ]
+                            with m.If(nibble_bitcounter < 4):
+                                m.d.sync += [
+                                    user_bits.enable_in.eq(1),
+                                    user_bits.bit_in.eq(self.adat_in),
+                                    nibble_bitcounter.eq(nibble_bitcounter + 1)
+                                ]                            
                         with m.Else():
                             m.d.sync += user_bits.enable_in.eq(0)
+                            with m.If(num_nibbles_counter_prev > num_nibbles_counter):
+                                m.d.sync += reading_user_data.eq(0)
 
 
         return m
