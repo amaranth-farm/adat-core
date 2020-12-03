@@ -6,23 +6,37 @@ from nmigen.back import verilog, rtlil
 
 from dividingcounter import DividingCounter
 from bittimedetector import ADATBitTimeDetector
+from shiftregister import ShiftRegister
 
 class ADATReceiver(Elaboratable):
     def __init__(self):
         self.adat_in        = Signal()
+        self.adat_clk_in    = Signal()
         self.clk_in         = Signal()
+        self.channels_out   = Array(Signal(24) for _ in range(8))
+        self.output_enable  = Signal()
 
     def elaborate(self, platform):
         m = Module()
+
         sync_time_detector = ADATBitTimeDetector()
         m.submodules.sync_time_detector = sync_time_detector
+
+        channel_outputs = Array(ShiftRegister(24) for _ in range(8))
+        m.submodules += channel_outputs
 
         got_sync           = Signal()
         bit_time           = Signal(10)
         bit_counter        = Signal(10)
         bit_counter_enable = Signal()
-
+        nibble_counter     = Signal(2)
+        sampled_bit        = Signal()
+        active_channel     = Signal(3)
+        
         last_adat_in = Signal()
+
+        for channel_no in range(8):
+            m.d.comb += self.channels_out[channel_no].eq(channel_outputs[channel_no].value_out)
 
         m.d.comb += [
             sync_time_detector.clk_in.eq(self.clk_in),
@@ -51,12 +65,15 @@ class ADATReceiver(Elaboratable):
                 with m.If(got_sync):
                     m.d.sync += [
                         bit_time.eq(sync_time_detector.bit_length_out),
-                        bit_counter.eq(3) # due to sync delays we are already at position 2 here
+                        bit_counter.eq(3) # due to sync delays we are already at position 3 here
                     ]
                     m.next = "READ_FRAME"
 
             with m.State("READ_FRAME"):
-                m.d.sync += bit_counter_enable.eq(1)
+                m.d.sync += [ 
+                    bit_counter_enable.eq(1),
+                    active_channel.eq(0)
+                ]
                 with m.If(bit_counter == bit_time >> 1):
                     m.next = "READ_SYNC_BIT"
 
@@ -69,9 +86,11 @@ class ADATReceiver(Elaboratable):
                     m.next = "READ_DATA_NIBBLE"
 
             with m.State("READ_DATA_NIBBLE"):
-                pass
+                with m.If(bit_counter == bit_time >> 1):
+                    m.d.sync += [
+                        channel_outputs[active_channel].bit_in.eq(self.adat_in)
+                    ]
 
-                    
         return m
 
 from random import randrange
@@ -106,5 +125,5 @@ if __name__ == "__main__":
 
     sim.add_sync_process(sync_process, domain="sync")
     sim.add_sync_process(adat_process, domain="adat")
-    with sim.write_vcd('receiver-smoke-test.vcd', traces=[receiver.adat_in, receiver.clk_in]):
+    with sim.write_vcd('receiver-smoke-test.vcd', traces=[receiver.adat_in, receiver.clk_in, receiver.adat_clk_in]):
         sim.run()
