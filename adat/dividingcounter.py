@@ -14,7 +14,7 @@ class DividingCounter(Elaboratable):
         self.dividable_out = Signal()
         self.divisor = divisor
 
-    def elaborate(self, platform):
+    def elaborate(self, platform) -> Module:
         m = Module()
 
         dividing_cycle_counter = Signal(range(0, self.divisor))

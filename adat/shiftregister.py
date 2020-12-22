@@ -11,7 +11,7 @@ class ShiftRegister(Elaboratable):
         self.bit_in = Signal()
         self.value_out = Signal(depth)
 
-    def elaborate(self, platform):
+    def elaborate(self, platform) -> Module:
         m = Module()
         
         with m.If(self.enable_in):
@@ -20,55 +20,13 @@ class ShiftRegister(Elaboratable):
         return m
 
 if __name__ == "__main__":
-    dut = ShiftRegister(24)
-    sim = Simulator(dut)
+    sync = ClockDomain()
 
-    def sync_process():
-        yield dut.enable_in.eq(0)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield Tick()
-        yield dut.bit_in.eq(0)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield Tick()
-        yield dut.bit_in.eq(0)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield dut.enable_in.eq(1)
-        yield Tick()
-        yield dut.enable_in.eq(0)
-        yield Tick()
-        yield dut.enable_in.eq(1)
-        yield Tick()
-        yield dut.bit_in.eq(0)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield Tick()
-        yield dut.bit_in.eq(0)
-        yield Tick()
-        yield dut.bit_in.eq(1)
-        yield Tick()
-        yield dut.enable_in.eq(0)
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        yield dut.enable_in.eq(1)
-        for _ in range(13):
-            yield dut.bit_in.eq(1)
-            yield Tick()
-            yield dut.bit_in.eq(0)
-            yield Tick()
-            yield dut.bit_in.eq(1)
-            yield Tick()
-            yield dut.bit_in.eq(0)
-            yield Tick()
+    block = ShiftRegister(32)
 
-    sim.add_sync_process(sync_process)
-    sim.add_clock(1e-6)
-    with sim.write_vcd('shift-register.vcd', traces=[dut.enable_in, dut.value_out, dut.bit_in]):
-        sim.run()
+    m = Module()
+    m.domains += sync
+    m.submodules += block
+
+    from nmigen.cli import main
+    main(m, ports=[sync.clk, sync.rst])    
