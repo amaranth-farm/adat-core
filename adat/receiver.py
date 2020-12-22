@@ -7,7 +7,6 @@ from shiftregister import ShiftRegister
 class ADATReceiver(Elaboratable):
     def __init__(self):
         self.adat_in        = Signal()
-        self.adat_clk_in    = Signal()
         self.clk_in         = Signal()
         self.channels_out   = Array(Signal(24) for _ in range(8))
         self.output_enable  = Signal()
