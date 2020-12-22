@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
+from nmigen import Elaboratable, Array, Signal, Module
 
-from nmigen import *
-from nmigen.sim import *
-from nmigen.back import verilog, rtlil
-
-from dividingcounter import DividingCounter
 from bittimedetector import ADATBitTimeDetector
 from shiftregister import ShiftRegister
 

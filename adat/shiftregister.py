@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-
-from nmigen import *
-from nmigen.sim import *
-from nmigen.back import verilog, rtlil
+from nmigen import Elaboratable, Signal, Module
 
 class ShiftRegister(Elaboratable):
     def __init__(self, depth):
@@ -18,15 +15,3 @@ class ShiftRegister(Elaboratable):
             m.d.sync += self.value_out.eq((self.value_out << 1) | self.bit_in)
 
         return m
-
-if __name__ == "__main__":
-    sync = ClockDomain()
-
-    block = ShiftRegister(32)
-
-    m = Module()
-    m.domains += sync
-    m.submodules += block
-
-    from nmigen.cli import main
-    main(m, ports=[sync.clk, sync.rst])    
