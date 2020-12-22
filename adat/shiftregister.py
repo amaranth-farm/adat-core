@@ -10,7 +10,7 @@ class ShiftRegister(Elaboratable):
 
     def elaborate(self, platform) -> Module:
         m = Module()
-        
+
         with m.If(self.enable_in):
             m.d.sync += self.value_out.eq((self.value_out << 1) | self.bit_in)
 

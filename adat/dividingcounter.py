@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-
-from nmigen import *
-from nmigen.sim import *
-from nmigen.back import verilog, rtlil
+from nmigen import Elaboratable, Signal, Module
 
 class DividingCounter(Elaboratable):
     def __init__(self, divisor, width):
@@ -40,7 +37,7 @@ class DividingCounter(Elaboratable):
                         dividing_cycle_counter.eq(dividing_cycle_counter + 1)
                     ]
 
-                # when the main counter wraps around to zero, the dividing counter needs to reset too
+                # when the main counter wraps around to zero, the dividing counter needs reset too
                 with m.If(self.counter_out == (2 ** self.counter_out.width) - 1):
                     m.d.sync += dividing_cycle_counter.eq(0)
 
@@ -49,41 +46,3 @@ class DividingCounter(Elaboratable):
                 ]
 
         return m
-
-if __name__ == "__main__":
-    dut = DividingCounter(5, 5)
-    #print(verilog.convert(dut, ports=[dut.divided_counter_out, dut.dividable_out]))
-    sim = Simulator(dut)
-
-    def sync_process():
-        yield dut.active_in.eq(0)
-        for _ in range(0, 5):
-            yield Tick()
-
-        yield dut.active_in.eq(1)
-        for _ in range(0, 50):
-            yield Tick()
-
-        yield dut.rst_in.eq(1)
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        yield dut.rst_in.eq(0)
-
-        for _ in range(0, 20):
-            yield Tick()
-
-        yield dut.active_in.eq(0)
-        yield Tick()
-        yield Tick()
-        yield Tick()
-        return
-
-    sim.add_sync_process(sync_process)
-    sim.add_clock(1e-6)
-    with sim.write_vcd('dividing-counter.vcd', traces=[dut.active_in, dut.counter_out, dut.dividable_out, dut.divided_counter_out]):
-        sim.run()

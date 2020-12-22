@@ -4,7 +4,6 @@ from dividingcounter import DividingCounter
 
 if __name__ == "__main__":
     dut = DividingCounter(5, 5)
-    #print(verilog.convert(dut, ports=[dut.divided_counter_out, dut.dividable_out]))
     sim = Simulator(dut)
 
     def sync_process():
@@ -37,5 +36,10 @@ if __name__ == "__main__":
 
     sim.add_sync_process(sync_process)
     sim.add_clock(1e-6)
-    with sim.write_vcd('dividing-counter.vcd', traces=[dut.active_in, dut.counter_out, dut.dividable_out, dut.divided_counter_out]):
+    with sim.write_vcd('dividing-counter.vcd',
+        traces=[
+            dut.active_in,
+            dut.counter_out,
+            dut.dividable_out,
+            dut.divided_counter_out]):
         sim.run()

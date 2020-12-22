@@ -33,7 +33,7 @@ class ADATReceiver(Elaboratable):
         num_nibbles_counter_prev = Signal(2)
         active_channel           = Signal(3)
         reading_user_data        = Signal()
- 
+
         last_adat_in             = Signal()
 
         for channel_no in range(8):
@@ -60,13 +60,13 @@ class ADATReceiver(Elaboratable):
             with m.If(self.adat_in & ~last_adat_in):
                 m.d.sync += bit_time_counter.eq(0)
             # we sample the bit in the middle
-        
+
         with m.FSM() as fsm:
             with m.State("SYNC"):
                 with m.If(got_sync):
                     m.d.sync += [
                         bit_time.eq(sync_time_detector.bit_length_out),
-                        bit_time_counter.eq(3) # due to sync delays we are already at position 3 here
+                        bit_time_counter.eq(3) #due to sync delays we are already at position 3 here
                     ]
                     m.next = "READ_FRAME"
 
@@ -88,8 +88,10 @@ class ADATReceiver(Elaboratable):
                     m.ext = "SYNC"
 
             with m.State("READ_DATA_NIBBLE"):
-                with m.If((bit_time_counter > (bit_time >> 1)) & (nibble_bitcounter == 4) & self.adat_in):
-                    m.d.sync += [ 
+                with m.If(  (bit_time_counter > (bit_time >> 1))
+                          & (nibble_bitcounter == 4)
+                          & self.adat_in):
+                    m.d.sync += [
                         num_nibbles_counter_prev.eq(num_nibbles_counter),
                         num_nibbles_counter.eq(num_nibbles_counter + 1)
                     ]
@@ -113,11 +115,10 @@ class ADATReceiver(Elaboratable):
                                     user_bits.enable_in.eq(1),
                                     user_bits.bit_in.eq(self.adat_in),
                                     nibble_bitcounter.eq(nibble_bitcounter + 1)
-                                ]                            
+                                ]                  
                         with m.Else():
                             m.d.sync += user_bits.enable_in.eq(0)
                             with m.If(num_nibbles_counter_prev > num_nibbles_counter):
                                 m.d.sync += reading_user_data.eq(0)
-
 
         return m

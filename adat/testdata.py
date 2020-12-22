@@ -26,9 +26,9 @@ class TestDataGenerator:
 
     @staticmethod
     def generate_adat_frame(sample_8channels):
-        result = concatenate_lists([TestDataGenerator.convert_sample(sample_1ch) for sample_1ch in sample_8channels])
-        result.extend(TestDataGenerator.postamble())
-        return result
+        frame = concatenate_lists([TestDataGenerator.convert_sample(sample_1ch) for sample_1ch in sample_8channels])
+        frame.extend(TestDataGenerator.postamble())
+        return frame
 
 def generate_adat_frame(sample_8channels):
     return TestDataGenerator.generate_adat_frame(sample_8channels)
@@ -41,9 +41,7 @@ def generate_one_frame_with_channel_numbers_as_samples():
 
 def generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample():
     samples_8ch = list(TestDataGenerator.chunks([(channelno << 20 | sampleno) for sampleno in range(16) for channelno in range(8)], 8))
-    #print(list(samples_8ch))
     return concatenate_lists([generate_adat_frame(sample_8ch) for sample_8ch in samples_8ch])
 
 if __name__ == "__main__":
     result = list(generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample())
-    #print (result)
