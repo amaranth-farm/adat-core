@@ -127,7 +127,7 @@ class ADATReceiver(Elaboratable):
         return m
 
 from random import randrange
-from test.testdata import *
+from testdata import *
 
 
 if __name__ == "__main__":
