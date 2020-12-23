@@ -8,8 +8,10 @@ class ADATReceiver(Elaboratable):
     def __init__(self):
         self.adat_in        = Signal()
         self.clk_in         = Signal()
-        self.channels_out   = Array(Signal(24) for _ in range(8))
+        self.addr_out       = Signal(3)
+        self.sample_out     = Signal(24)
         self.output_enable  = Signal()
+        self.user_data_out  = Signal(3)
 
     def elaborate(self, platform) -> Module:
         m = Module()
@@ -17,10 +19,10 @@ class ADATReceiver(Elaboratable):
         sync_time_detector = ADATBitTimeDetector()
         m.submodules.sync_time_detector = sync_time_detector
 
-        channel_outputs = Array(ShiftRegister(24) for _ in range(8))
-        m.submodules += channel_outputs
+        channel_output = ShiftRegister(24)
+        m.submodules += channel_output
 
-        user_bits = ShiftRegister(24)
+        user_bits = ShiftRegister(4)
         m.submodules += user_bits
 
         got_sync                 = Signal()
@@ -31,12 +33,9 @@ class ADATReceiver(Elaboratable):
         num_nibbles_counter      = Signal(2)
         num_nibbles_counter_prev = Signal(2)
         active_channel           = Signal(3)
-        reading_user_data        = Signal()
+        read_user_data           = Signal()
 
         last_adat_in             = Signal()
-
-        for channel_no in range(8):
-            m.d.comb += self.channels_out[channel_no].eq(channel_outputs[channel_no].value_out)
 
         m.d.comb += [
             sync_time_detector.clk_in.eq(self.clk_in),
@@ -70,54 +69,86 @@ class ADATReceiver(Elaboratable):
                     m.next = "READ_FRAME"
 
             with m.State("READ_FRAME"):
-                m.d.sync += [ 
-                    bit_time_counter_enable.eq(1),
-                    reading_user_data.eq(1),
-                    active_channel.eq(0)
-                ]
-                with m.If(bit_time_counter == bit_time >> 1):
+                with m.If(bit_time_counter == ((bit_time >> 1) - 1)):
+                    m.d.sync += [
+                        bit_time_counter_enable.eq(1),
+                        read_user_data.eq(1),
+                        active_channel.eq(0)
+                    ]
                     m.next = "READ_SYNC_BIT"
 
             with m.State("READ_SYNC_BIT"):
                 with m.If(active_channel < 7):
-                    with m.If((bit_time_counter == bit_time >> 1)):
+                    with m.If(bit_time_counter == ((bit_time >> 1) + 2)):
                         m.d.sync += nibble_bitcounter.eq(0)
-                        m.next = "READ_DATA_NIBBLE"
+                        with m.If(read_user_data):
+                            m.d.sync += [
+                                read_user_data.eq(0),
+                                # make it wrap around so it is at 0 at the first user bit
+                                nibble_bitcounter.eq(7)
+                            ]
+                            m.next = "READ_USER_DATA"
+                        with m.Else():
+                            # make it wrap around so it is at 0 at the first user bit
+                            m.d.sync += nibble_bitcounter.eq(7)
+                            m.next = "READ_DATA_NIBBLE"
+
                 with m.Else():
-                    m.ext = "SYNC"
+                    m.next = "SYNC"
+
+            with m.State("READ_USER_DATA"):
+                with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
+                          & (nibble_bitcounter == 4)
+                          & self.adat_in):
+                    m.next = "READ_SYNC_BIT"
+
+                with m.If(bit_time_counter == bit_time >> 1): # in the middle of the bit
+                    with m.If(nibble_bitcounter != 4):
+                        m.d.sync += [
+                            user_bits.enable_in.eq(1),
+                            user_bits.bit_in.eq(self.adat_in),
+                            nibble_bitcounter.eq(nibble_bitcounter + 1)
+                        ]
+                # we are finished reading user data
+                with m.If((nibble_bitcounter == 3) & self.adat_in):
+                    m.d.sync += [
+                        user_bits.enable_in.eq(0),
+                        self.user_data_out.eq(user_bits.value_out)
+                    ]
+                    m.next = "READ_SYNC_BIT"
 
             with m.State("READ_DATA_NIBBLE"):
-                with m.If(  (bit_time_counter > (bit_time >> 1))
+                with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
                           & (nibble_bitcounter == 4)
                           & self.adat_in):
                     m.d.sync += [
                         num_nibbles_counter_prev.eq(num_nibbles_counter),
                         num_nibbles_counter.eq(num_nibbles_counter + 1)
                     ]
-                    with m.If((num_nibbles_counter == 3) & (~reading_user_data)):
-                        m.d.sync += active_channel.eq(active_channel + 1)
-                    m.next = "READ_SYNC_BIT"
-                with m.Else():
-                    with m.If(~reading_user_data):
-                        with m.If(bit_time_counter == bit_time >> 1):
-                            m.d.sync += [
-                                channel_outputs[active_channel].enable_in.eq(1),
-                                channel_outputs[active_channel].bit_in.eq(self.adat_in),
-                                nibble_bitcounter.eq(nibble_bitcounter + 1)
-                            ]
-                        with m.Else():
-                            m.d.sync += channel_outputs[active_channel].enable_in.eq(0)
-                    with m.Else(): # reading user data
-                        with m.If(bit_time_counter == bit_time >> 1):
-                            with m.If(nibble_bitcounter < 4):
-                                m.d.sync += [
-                                    user_bits.enable_in.eq(1),
-                                    user_bits.bit_in.eq(self.adat_in),
-                                    nibble_bitcounter.eq(nibble_bitcounter + 1)
-                                ]                  
-                        with m.Else():
-                            m.d.sync += user_bits.enable_in.eq(0)
-                            with m.If(num_nibbles_counter_prev > num_nibbles_counter):
-                                m.d.sync += reading_user_data.eq(0)
+                    with m.If(num_nibbles_counter == 3): # read a full 24 bit sample
+                        m.d.sync += [
+                            self.addr_out.eq(active_channel),
+                            self.sample_out.eq(channel_output.value_out),
+                            self.output_enable.eq(1),
+                            active_channel.eq(active_channel + 1)                        ]
+                    with m.Else(): # not finished reading sample
+                        m.d.sync += self.output_enable.eq(0)
 
+                    m.next = "READ_SYNC_BIT"
+
+                with m.Else(): # reached data bit
+                    with m.If(bit_time_counter == bit_time >> 1): # in the middle of the bit
+                        m.d.sync += [
+                            channel_output.bit_in.eq(self.adat_in),
+                            nibble_bitcounter.eq(nibble_bitcounter + 1)
+                        ]
+                        with m.If((nibble_bitcounter == 7) | (nibble_bitcounter <= 2)):
+                            m.d.sync += channel_output.enable_in.eq(1)
+                        with m.Else():
+                            m.d.sync += channel_output.enable_in.eq(0)
+
+                    with m.Else(): # somewhere else in the bit
+                        m.d.sync += [
+                            channel_output.enable_in.eq(0),
+                        ]
         return m
