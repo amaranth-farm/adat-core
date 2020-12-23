@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Wed Dec 23 11:20:45 2020
+[*] Wed Dec 23 11:41:37 2020
 [*]
 [dumpfile] "/home/jack/HDL/src/adat/receiver-smoke-test.vcd"
-[dumpfile_mtime] "Wed Dec 23 11:19:32 2020"
-[dumpfile_size] 353058
+[dumpfile_mtime] "Wed Dec 23 11:37:39 2020"
+[dumpfile_size] 352668
 [savefile] "/home/jack/HDL/src/adat/receiver-smoke-test.gtkw"
-[timestart] 3904000
+[timestart] 0
 [size] 3832 2089
 [pos] -1 -1
-*-18.235929 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.887806 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.sync_time_detector.
 [sst_width] 535
@@ -36,18 +36,25 @@ top.bit_time_counter_enable
 top.bit_time_counter[9:0]
 [color] 7
 top.nibble_bitcounter[2:0]
+@25
 [color] 7
-top.num_nibbles_counter[1:0]
+top.num_nibbles_counter[2:0]
 [color] 7
-top.num_nibbles_counter_prev[1:0]
+top.num_nibbles_counter_prev[2:0]
+@24
 [color] 7
 top.active_channel[2:0]
 @28
+[color] 3
 top.U$2.enable_in
-@29
+@22
+[color] 3
+top.U$2.value_out[3:0]
+@28
+[color] 2
 top.U$1.enable_in
 @22
-top.U$2.value_out[3:0]
+[color] 2
 top.U$1.value_out[23:0]
 [color] 2
 top.sample_out[23:0]

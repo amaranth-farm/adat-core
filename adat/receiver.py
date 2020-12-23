@@ -30,8 +30,8 @@ class ADATReceiver(Elaboratable):
         bit_time_counter         = Signal(10)
         bit_time_counter_enable  = Signal()
         nibble_bitcounter        = Signal(3)
-        num_nibbles_counter      = Signal(2)
-        num_nibbles_counter_prev = Signal(2)
+        num_nibbles_counter      = Signal(3)
+        num_nibbles_counter_prev = Signal(3)
         active_channel           = Signal(3)
         read_user_data           = Signal()
 
@@ -125,12 +125,14 @@ class ADATReceiver(Elaboratable):
                         num_nibbles_counter_prev.eq(num_nibbles_counter),
                         num_nibbles_counter.eq(num_nibbles_counter + 1)
                     ]
-                    with m.If(num_nibbles_counter == 3): # read a full 24 bit sample
+                    with m.If(num_nibbles_counter == 5): # read a full 24 bit sample
                         m.d.sync += [
                             self.addr_out.eq(active_channel),
                             self.sample_out.eq(channel_output.value_out),
                             self.output_enable.eq(1),
-                            active_channel.eq(active_channel + 1)                        ]
+                            active_channel.eq(active_channel + 1),
+                            num_nibbles_counter.eq(0)
+                        ]
                     with m.Else(): # not finished reading sample
                         m.d.sync += self.output_enable.eq(0)
 
