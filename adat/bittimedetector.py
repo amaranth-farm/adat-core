@@ -4,8 +4,9 @@ from dividingcounter import DividingCounter
 
 class ADATBitTimeDetector(Elaboratable):
     def __init__(self):
-        self.adat_in            = Signal()
+        self.rst_in             = Signal()
         self.clk_in             = Signal()
+        self.adat_in            = Signal()
         self.bit_length_out     = Signal(32)
 
     def setup_clockdomains(self, m):
@@ -31,33 +32,43 @@ class ADATBitTimeDetector(Elaboratable):
         last_got_sync_frame = Signal()
         got_sync_frame_pulse = Signal()
 
-        m.d.comb += [
-            sync_counter.active_in.eq(~self.adat_in),
-            got_sync_frame_pulse.eq(got_sync_frame ^ last_got_sync_frame)
-        ]
-
-        with m.If(~self.adat_in):
-            m.d.sync += sync_counter.rst_in.eq(0),
-            with m.If(sync_counter.counter_out > max_sync_counter):
-                m.d.sync += [
-                    max_sync_counter.eq(sync_counter.counter_out)
-                ]
-
-        with m.Else(): # adat_in is 1
-            # if max_bitcounter is greater than 3/4 of its last value, we have a frame start 
-            with m.If(max_sync_counter > 50):
-                with m.If(max_sync_counter > ((last_max << 1) + last_max) >> 2):                
-                    m.d.sync += [
-                        got_sync_frame.eq(1),
-                        last_got_sync_frame.eq(got_sync_frame),
-                    ]
-
+        with m.If(self.rst_in):
             m.d.sync += [
-                last_max.eq(max_sync_counter),
+                max_sync_counter.eq(0),
+                last_max.eq(0),
+                got_sync_frame.eq(0),
+                last_got_sync_frame.eq(0),
                 sync_counter.rst_in.eq(1),
+                self.bit_length_out.eq(0)
+            ]
+        with m.Else():
+            m.d.comb += [
+                sync_counter.active_in.eq(~self.rst_in & ~self.adat_in),
+                got_sync_frame_pulse.eq(~self.rst_in & (got_sync_frame ^ last_got_sync_frame))
             ]
 
-        with m.If(got_sync_frame_pulse):
-            m.d.sync += self.bit_length_out.eq(sync_counter.divided_counter_out)
+            with m.If(~self.adat_in):
+                m.d.sync += sync_counter.rst_in.eq(0),
+                with m.If(sync_counter.counter_out > max_sync_counter):
+                    m.d.sync += [
+                        max_sync_counter.eq(sync_counter.counter_out)
+                    ]
+
+            with m.Else(): # adat_in is 1
+                # if max_bitcounter is greater than 3/4 of its last value, we have a frame start 
+                with m.If(max_sync_counter > 50):
+                    with m.If(max_sync_counter > ((last_max << 1) + last_max) >> 2):                
+                        m.d.sync += [
+                            got_sync_frame.eq(1),
+                            last_got_sync_frame.eq(got_sync_frame),
+                        ]
+
+                m.d.sync += [
+                    last_max.eq(max_sync_counter),
+                    sync_counter.rst_in.eq(1),
+                ]
+
+            with m.If(got_sync_frame_pulse):
+                m.d.sync += self.bit_length_out.eq(sync_counter.divided_counter_out)
 
         return m

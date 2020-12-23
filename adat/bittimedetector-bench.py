@@ -24,8 +24,25 @@ if __name__ == "__main__":
 
     def adat_process():
         testdata = one_empty_adat_frame() + generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample()
+        bitcount = 0
         for bit in testdata[224:512 * 2]:
             yield dut.adat_in.eq(bit)
+            if (bitcount == 200):
+                yield dut.rst_in.eq(1)
+                yield Tick("adat")
+                yield Tick("adat")
+                yield Tick("adat")
+                yield dut.rst_in.eq(0)
+                yield Tick("adat")
+            if (bitcount == 532):
+                yield dut.rst_in.eq(1)
+                yield Tick("adat")
+                yield Tick("adat")
+                yield Tick("adat")
+                yield dut.rst_in.eq(0)
+                yield Tick("adat")              
+
+            bitcount += 1
             yield Tick("adat")
 
     sim.add_sync_process(sync_process, domain="sync")
