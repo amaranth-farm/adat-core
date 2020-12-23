@@ -11,7 +11,7 @@ class ADATReceiver(Elaboratable):
         self.addr_out       = Signal(3)
         self.sample_out     = Signal(24)
         self.output_enable  = Signal()
-        self.user_data_out  = Signal(3)
+        self.user_data_out  = Signal(4)
 
     def elaborate(self, platform) -> Module:
         m = Module()
@@ -60,25 +60,25 @@ class ADATReceiver(Elaboratable):
             # we sample the bit in the middle
 
         with m.FSM() as fsm:
-            with m.State("SYNC"):
+            with m.State("FRAME_SYNC"):
                 with m.If(got_sync):
                     m.d.sync += [
                         bit_time.eq(sync_time_detector.bit_length_out),
                         bit_time_counter.eq(3) #due to sync delays we are already at position 3 here
                     ]
-                    m.next = "READ_FRAME"
+                    m.next = "FRAME"
 
-            with m.State("READ_FRAME"):
+            with m.State("FRAME"):
                 with m.If(bit_time_counter == ((bit_time >> 1) - 1)):
                     m.d.sync += [
                         bit_time_counter_enable.eq(1),
                         read_user_data.eq(1),
                         active_channel.eq(0)
                     ]
-                    m.next = "READ_SYNC_BIT"
+                    m.next = "SYNC_BIT"
 
-            with m.State("READ_SYNC_BIT"):
-                with m.If(active_channel < 7):
+            with m.State("SYNC_BIT"):
+                with m.If(active_channel < 8):
                     with m.If(bit_time_counter == ((bit_time >> 1) + 2)):
                         m.d.sync += nibble_bitcounter.eq(0)
                         with m.If(read_user_data):
@@ -87,20 +87,20 @@ class ADATReceiver(Elaboratable):
                                 # make it wrap around so it is at 0 at the first user bit
                                 nibble_bitcounter.eq(7)
                             ]
-                            m.next = "READ_USER_DATA"
+                            m.next = "USER_DATA"
                         with m.Else():
                             # make it wrap around so it is at 0 at the first user bit
                             m.d.sync += nibble_bitcounter.eq(7)
-                            m.next = "READ_DATA_NIBBLE"
+                            m.next = "DATA_NIBBLE"
 
                 with m.Else():
-                    m.next = "SYNC"
+                    m.next = "FRAME_SYNC"
 
-            with m.State("READ_USER_DATA"):
+            with m.State("USER_DATA"):
                 with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
                           & (nibble_bitcounter == 4)
                           & self.adat_in):
-                    m.next = "READ_SYNC_BIT"
+                    m.next = "SYNC_BIT"
 
                 with m.If(bit_time_counter == bit_time >> 1): # in the middle of the bit
                     with m.If(nibble_bitcounter != 4):
@@ -109,15 +109,18 @@ class ADATReceiver(Elaboratable):
                             user_bits.bit_in.eq(self.adat_in),
                             nibble_bitcounter.eq(nibble_bitcounter + 1)
                         ]
+                with m.Else():
+                    m.d.sync += user_bits.enable_in.eq(0)
+
                 # we are finished reading user data
                 with m.If((nibble_bitcounter == 3) & self.adat_in):
                     m.d.sync += [
                         user_bits.enable_in.eq(0),
                         self.user_data_out.eq(user_bits.value_out)
                     ]
-                    m.next = "READ_SYNC_BIT"
+                    m.next = "SYNC_BIT"
 
-            with m.State("READ_DATA_NIBBLE"):
+            with m.State("DATA_NIBBLE"):
                 with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
                           & (nibble_bitcounter == 4)
                           & self.adat_in):
@@ -136,7 +139,7 @@ class ADATReceiver(Elaboratable):
                     with m.Else(): # not finished reading sample
                         m.d.sync += self.output_enable.eq(0)
 
-                    m.next = "READ_SYNC_BIT"
+                    m.next = "SYNC_BIT"
 
                 with m.Else(): # reached data bit
                     with m.If(bit_time_counter == bit_time >> 1): # in the middle of the bit
