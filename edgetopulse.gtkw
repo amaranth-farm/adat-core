@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Thu Dec 24 03:33:57 2020
+[*] Thu Dec 24 03:48:00 2020
 [*]
 [dumpfile] "/home/jack/HDL/src/adat/edgetopulse.vcd"
-[dumpfile_mtime] "Thu Dec 24 03:26:10 2020"
-[dumpfile_size] 1064
-[savefile] "/home/jack/HDL/src/adat/leveltopulse.gtkw"
+[dumpfile_mtime] "Thu Dec 24 03:45:54 2020"
+[dumpfile_size] 1223
+[savefile] "/home/jack/HDL/src/adat/edgetopulse.gtkw"
 [timestart] 0
 [size] 3832 2089
 [pos] -1 -1
-*-22.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-23.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [sst_width] 374
 [signals_width] 270
 [sst_expanded] 1
@@ -18,11 +18,8 @@
 top.clk
 [color] 2
 top.rst_in
-@29
 [color] 3
 top.edge_in
-@28
-top.edge_shift[1:0]
 [color] 1
 top.pulse_out
 [pattern_trace] 1

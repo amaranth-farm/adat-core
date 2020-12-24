@@ -15,15 +15,15 @@ class EdgeToPulse(Elaboratable):
     def elaborate(self, platform) -> Module:
         m = Module()
 
-        edge_shift = Signal(2)
+        edge_last = Signal()
 
         with m.If(self.rst_in):
-            m.d.sync += edge_shift.eq(0)
+            m.d.sync += edge_last.eq(0)
             m.d.comb += self.pulse_out.eq(0)
 
         with m.Else():
-            m.d.sync += edge_shift.eq((edge_shift << 1) | self.edge_in)
-            with m.If(self.edge_in & ~edge_shift):
+            m.d.sync += edge_last.eq(self.edge_in)
+            with m.If(self.edge_in & ~edge_last):
                 m.d.comb += self.pulse_out.eq(1)
             with m.Else():
                 m.d.comb += self.pulse_out.eq(0)
