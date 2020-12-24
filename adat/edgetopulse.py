@@ -23,11 +23,9 @@ class EdgeToPulse(Elaboratable):
 
         with m.Else():
             m.d.sync += edge_shift.eq((edge_shift << 1) | self.edge_in)
-
-            with m.Switch(edge_shift):
-                with m.Case("01"):
-                    m.d.comb += self.pulse_out.eq(1)
-                with m.Default():
-                    m.d.comb += self.pulse_out.eq(0)
+            with m.If(self.edge_in & ~edge_shift):
+                m.d.comb += self.pulse_out.eq(1)
+            with m.Else():
+                m.d.comb += self.pulse_out.eq(0)
 
         return m
