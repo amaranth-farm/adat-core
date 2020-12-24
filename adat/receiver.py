@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-from nmigen import Elaboratable, Array, Signal, Module
+from nmigen import Elaboratable, Signal, Module
 
 from bittimedetector import ADATBitTimeDetector
-from shiftregister import ShiftRegister
+from shiftregister   import ShiftRegister
+from edgetopulse     import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     def __init__(self):
+        self.rst_in         = Signal()
         self.adat_in        = Signal()
         self.clk_in         = Signal()
         self.addr_out       = Signal(3)
@@ -25,6 +27,9 @@ class ADATReceiver(Elaboratable):
         user_bits = ShiftRegister(4)
         m.submodules += user_bits
 
+        output_enable_pulse = EdgeToPulse()
+        m.submodules += output_enable_pulse
+
         got_sync                 = Signal()
         bit_time                 = Signal(10)
         bit_time_counter         = Signal(10)
@@ -40,7 +45,9 @@ class ADATReceiver(Elaboratable):
         m.d.comb += [
             sync_time_detector.clk_in.eq(self.clk_in),
             sync_time_detector.adat_in.eq(self.adat_in),
-            got_sync.eq(sync_time_detector.bit_length_out > 0)
+            got_sync.eq(sync_time_detector.bit_length_out > 0),
+            output_enable_pulse.rst_in.eq(self.rst_in),
+            self.output_enable.eq(output_enable_pulse.pulse_out)
         ]
 
         m.d.sync += [
@@ -141,12 +148,12 @@ class ADATReceiver(Elaboratable):
                         m.d.sync += [
                             self.addr_out.eq(active_channel),
                             self.sample_out.eq(channel_output.value_out),
-                            self.output_enable.eq(1),
+                            output_enable_pulse.edge_in.eq(1),
                             active_channel.eq(active_channel + 1),
                             num_nibbles_counter.eq(0)
                         ]
                     with m.Else(): # not finished reading sample
-                        m.d.sync += self.output_enable.eq(0)
+                        m.d.sync += output_enable_pulse.edge_in.eq(0)
 
                     m.next = "SYNC_BIT"
 
