@@ -67,18 +67,30 @@ class ADATReceiver(Elaboratable):
                         bit_time_counter.eq(3) #due to sync delays we are already at position 3 here
                     ]
                     m.next = "FRAME"
+                with m.Else():
+                    m.d.sync += sync_time_detector.rst_in.eq(0),
+
+            with m.State("WAIT_FRAME_SYNC"):
+                with m.If(self.adat_in):
+                    m.d.sync += sync_time_detector.rst_in.eq(1)
+                with m.Else():
+                    m.d.sync += sync_time_detector.rst_in.eq(0)
+                    m.next = "FRAME_SYNC"
 
             with m.State("FRAME"):
                 with m.If(bit_time_counter == ((bit_time >> 1) - 1)):
                     m.d.sync += [
                         bit_time_counter_enable.eq(1),
                         read_user_data.eq(1),
+                        self.addr_out.eq(0),
                         active_channel.eq(0)
                     ]
                     m.next = "SYNC_BIT"
 
             with m.State("SYNC_BIT"):
-                with m.If(active_channel < 8):
+                with m.If((self.addr_out == 7) & (active_channel == 0)):
+                    m.next = "WAIT_FRAME_SYNC"
+                with m.Else():
                     with m.If(bit_time_counter == ((bit_time >> 1) + 2)):
                         m.d.sync += nibble_bitcounter.eq(0)
                         with m.If(read_user_data):
@@ -92,9 +104,6 @@ class ADATReceiver(Elaboratable):
                             # make it wrap around so it is at 0 at the first user bit
                             m.d.sync += nibble_bitcounter.eq(7)
                             m.next = "DATA_NIBBLE"
-
-                with m.Else():
-                    m.next = "FRAME_SYNC"
 
             with m.State("USER_DATA"):
                 with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
