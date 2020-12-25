@@ -3,7 +3,7 @@ from nmigen.sim import Simulator, Tick
 from shiftregister import ShiftRegister
 
 if __name__ == "__main__":
-    dut = ShiftRegister(24)
+    dut = ShiftRegister(8)
     sim = Simulator(dut)
 
     def sync_process():

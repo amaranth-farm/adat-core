@@ -1,16 +1,16 @@
 [*]
-[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Dec  1 02:04:08 2020
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Fri Dec 25 04:55:34 2020
 [*]
 [dumpfile] "shift-register.vcd"
-[dumpfile_mtime] "Tue Dec  1 02:01:47 2020"
-[dumpfile_size] 3391
+[dumpfile_mtime] "Fri Dec 25 04:55:26 2020"
+[dumpfile_size] 2686
 [savefile] "shift-register.gtkw"
-[timestart] 25412000
-[size] 3832 2089
+[timestart] 7624000
+[size] 3822 2017
 [pos] -1 -1
-*-19.041714 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[sst_width] 374
+*-19.914549 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 444
 [signals_width] 270
 [sst_expanded] 1
 [sst_vpaned_height] 654
@@ -22,7 +22,7 @@ top.enable_in
 [color] 3
 top.bit_in
 @29
-[color] 2
-top.value_out[23:0]
+[color] 1
+top.value_out[7:0]
 [pattern_trace] 1
 [pattern_trace] 0
