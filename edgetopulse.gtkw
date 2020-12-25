@@ -2,10 +2,10 @@
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
 [*] Thu Dec 24 03:48:00 2020
 [*]
-[dumpfile] "/home/jack/HDL/src/adat/edgetopulse.vcd"
+[dumpfile] "edgetopulse.vcd"
 [dumpfile_mtime] "Thu Dec 24 03:45:54 2020"
 [dumpfile_size] 1223
-[savefile] "/home/jack/HDL/src/adat/edgetopulse.gtkw"
+[savefile] "edgetopulse.gtkw"
 [timestart] 0
 [size] 3832 2089
 [pos] -1 -1
