@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 from nmigen import Elaboratable, Signal, Module
+from nmigen.cli import main
 
 class DividingCounter(Elaboratable):
     def __init__(self, divisor, width):
-        self.rst_in = Signal()
-        self.clk_in = Signal()
-        self.active_in = Signal()
-        self.counter_out = Signal(width)
+        self.reset_in            = Signal()
+        self.active_in           = Signal()
+        self.counter_out         = Signal(width)
         self.divided_counter_out = Signal(width)
-        self.dividable_out = Signal()
+        self.dividable_out       = Signal()
         self.divisor = divisor
 
     def elaborate(self, platform) -> Module:
@@ -16,7 +16,7 @@ class DividingCounter(Elaboratable):
 
         dividing_cycle_counter = Signal(range(0, self.divisor))
 
-        with m.If(self.rst_in):
+        with m.If(self.reset_in):
             m.d.sync += [
                 self.counter_out.eq(0),
                 self.divided_counter_out.eq(0),
@@ -46,3 +46,7 @@ class DividingCounter(Elaboratable):
                 ]
 
         return m
+
+if __name__ == "__main__":
+    m = DividingCounter()
+    main(m, name="dividing_counter", ports=[m.reset_in, m.active_in, m.counter_out, m.divided_counter_out, m.dividable_out])

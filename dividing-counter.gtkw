@@ -1,14 +1,14 @@
 [*]
-[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Mon Nov 30 02:34:14 2020
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Mon Jan 11 02:58:04 2021
 [*]
 [dumpfile] "dividing-counter.vcd"
-[dumpfile_mtime] "Mon Nov 30 02:32:53 2020"
-[dumpfile_size] 3455
+[dumpfile_mtime] "Mon Jan 11 02:57:38 2021"
+[dumpfile_size] 3457
 [savefile] "dividing-counter.gtkw"
 [timestart] 12320000
-[size] 3832 2089
-[pos] -1921 -1
+[size] 3822 2017
+[pos] -1 -1
 *-22.000000 16080000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [sst_width] 512
 [signals_width] 462
@@ -16,8 +16,10 @@
 [sst_vpaned_height] 654
 @28
 top.clk
-top.rst_in
 top.active_in
+@29
+[color] 2
+top.reset_in
 @24
 [color] 3
 top.counter_out[4:0]
@@ -26,7 +28,7 @@ top.dividing_cycle_counter[2:0]
 @28
 [color] 1
 top.dividable_out
-@23
+@22
 [color] 6
 top.divided_counter_out[4:0]
 [pattern_trace] 1

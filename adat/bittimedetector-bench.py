@@ -28,18 +28,18 @@ if __name__ == "__main__":
         for bit in testdata[224:512 * 2]:
             yield dut.adat_in.eq(bit)
             if (bitcount == 200):
-                yield dut.rst_in.eq(1)
+                yield dut.reset_in.eq(1)
                 yield Tick("adat")
                 yield Tick("adat")
                 yield Tick("adat")
-                yield dut.rst_in.eq(0)
+                yield dut.reset_in.eq(0)
                 yield Tick("adat")
             if (bitcount == 532):
-                yield dut.rst_in.eq(1)
+                yield dut.reset_in.eq(1)
                 yield Tick("adat")
                 yield Tick("adat")
                 yield Tick("adat")
-                yield dut.rst_in.eq(0)
+                yield dut.reset_in.eq(0)
                 yield Tick("adat")              
 
             bitcount += 1

@@ -32,5 +32,5 @@ if __name__ == "__main__":
 
     sim.add_sync_process(sync_process, domain="sync")
     sim.add_sync_process(adat_process, domain="adat")
-    with sim.write_vcd('receiver-smoke-test.vcd', traces=[receiver.adat_in, receiver.clk_in]):
+    with sim.write_vcd('receiver-smoke-test.vcd', traces=[receiver.adat_in]):
         sim.run()

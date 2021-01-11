@@ -4,15 +4,13 @@ from dividingcounter import DividingCounter
 
 class ADATBitTimeDetector(Elaboratable):
     def __init__(self):
-        self.rst_in             = Signal()
-        self.clk_in             = Signal()
+        self.reset_in           = Signal()
         self.adat_in            = Signal()
         self.bit_length_out     = Signal(32)
 
     def setup_clockdomains(self, m):
         cd_adat = ClockDomain(reset_less=True)
         cd_sync = ClockDomain()
-        cd_sync.clk = self.clk_in
         m.domains.adat = cd_adat
         m.domains.sync = cd_sync
 
@@ -32,23 +30,23 @@ class ADATBitTimeDetector(Elaboratable):
         last_got_sync_frame = Signal()
         got_sync_frame_pulse = Signal()
 
-        with m.If(self.rst_in):
+        with m.If(self.reset_in):
             m.d.sync += [
                 max_sync_counter.eq(0),
                 last_max.eq(0),
                 got_sync_frame.eq(0),
                 last_got_sync_frame.eq(0),
-                sync_counter.rst_in.eq(1),
+                sync_counter.reset_in.eq(1),
                 self.bit_length_out.eq(0)
             ]
         with m.Else():
             m.d.comb += [
-                sync_counter.active_in.eq(~self.rst_in & ~self.adat_in),
-                got_sync_frame_pulse.eq(~self.rst_in & (got_sync_frame ^ last_got_sync_frame))
+                sync_counter.active_in.eq(~self.reset_in & ~self.adat_in),
+                got_sync_frame_pulse.eq(~self.reset_in & (got_sync_frame ^ last_got_sync_frame))
             ]
 
             with m.If(~self.adat_in):
-                m.d.sync += sync_counter.rst_in.eq(0),
+                m.d.sync += sync_counter.reset_in.eq(0),
                 with m.If(sync_counter.counter_out > max_sync_counter):
                     m.d.sync += [
                         max_sync_counter.eq(sync_counter.counter_out)
@@ -65,7 +63,7 @@ class ADATBitTimeDetector(Elaboratable):
 
                 m.d.sync += [
                     last_max.eq(max_sync_counter),
-                    sync_counter.rst_in.eq(1),
+                    sync_counter.reset_in.eq(1),
                 ]
 
             with m.If(got_sync_frame_pulse):

@@ -15,7 +15,7 @@ if __name__ == "__main__":
         for _ in range(0, 50):
             yield Tick()
 
-        yield dut.rst_in.eq(1)
+        yield dut.reset_in.eq(1)
         yield Tick()
         yield Tick()
         yield Tick()
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         yield Tick()
         yield Tick()
         yield Tick()
-        yield dut.rst_in.eq(0)
+        yield dut.reset_in.eq(0)
 
         for _ in range(0, 20):
             yield Tick()

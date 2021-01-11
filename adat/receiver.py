@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from nmigen import Elaboratable, Signal, Module
+from nmigen import Elaboratable, Signal, Module, ClockSignal
+from nmigen.cli import main
 
 from bittimedetector import ADATBitTimeDetector
 from shiftregister   import ShiftRegister
@@ -7,9 +8,9 @@ from edgetopulse     import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     def __init__(self):
-        self.rst_in         = Signal()
+        self.clk            = ClockSignal()
+        self.reset_in       = Signal()
         self.adat_in        = Signal()
-        self.clk_in         = Signal()
         self.addr_out       = Signal(3)
         self.sample_out     = Signal(24)
         self.output_enable  = Signal()
@@ -22,13 +23,13 @@ class ADATReceiver(Elaboratable):
         m.submodules.sync_time_detector = sync_time_detector
 
         channel_output = ShiftRegister(24)
-        m.submodules += channel_output
+        m.submodules.channel_out_shifter = channel_output
 
         user_bits = ShiftRegister(4)
-        m.submodules += user_bits
+        m.submodules.user_bits_shifter = user_bits
 
         output_enable_pulse = EdgeToPulse()
-        m.submodules += output_enable_pulse
+        m.submodules.output_enable_pulse = output_enable_pulse
 
         got_sync                 = Signal()
         bit_time                 = Signal(10)
@@ -43,10 +44,8 @@ class ADATReceiver(Elaboratable):
         last_adat_in             = Signal()
 
         m.d.comb += [
-            sync_time_detector.clk_in.eq(self.clk_in),
             sync_time_detector.adat_in.eq(self.adat_in),
             got_sync.eq(sync_time_detector.bit_length_out > 0),
-            output_enable_pulse.rst_in.eq(self.rst_in),
             self.output_enable.eq(output_enable_pulse.pulse_out)
         ]
 
@@ -75,13 +74,13 @@ class ADATReceiver(Elaboratable):
                     ]
                     m.next = "FRAME"
                 with m.Else():
-                    m.d.sync += sync_time_detector.rst_in.eq(0),
+                    m.d.sync += sync_time_detector.reset_in.eq(0),
 
             with m.State("WAIT_FRAME_SYNC"):
                 with m.If(self.adat_in):
-                    m.d.sync += sync_time_detector.rst_in.eq(1)
+                    m.d.sync += sync_time_detector.reset_in.eq(1)
                 with m.Else():
-                    m.d.sync += sync_time_detector.rst_in.eq(0)
+                    m.d.sync += sync_time_detector.reset_in.eq(0)
                     m.next = "FRAME_SYNC"
 
             with m.State("FRAME"):
@@ -173,3 +172,7 @@ class ADATReceiver(Elaboratable):
                             channel_output.enable_in.eq(0),
                         ]
         return m
+
+if __name__ == "__main__":
+    m = ADATReceiver()
+    main(m, name="adat-receiver", ports=[m.clk, m.reset_in, m.adat_in, m.addr_out, m.sample_out, m.output_enable, m.user_data_out])

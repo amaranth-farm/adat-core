@@ -1,26 +1,26 @@
 [*]
-[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Thu Dec 24 02:26:21 2020
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Mon Jan 11 03:52:56 2021
 [*]
 [dumpfile] "receiver-smoke-test.vcd"
-[dumpfile_mtime] "Wed Dec 23 22:40:57 2020"
-[dumpfile_size] 320140
+[dumpfile_mtime] "Mon Jan 11 03:51:26 2021"
+[dumpfile_size] 353142
 [savefile] "receiver-smoke-test.gtkw"
-[timestart] 2257000
-[size] 3832 2089
-[pos] -1921 -1
-*-19.322437 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 0
+[size] 3822 2017
+[pos] -1 -1
+*-20.522438 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.sync_time_detector.
 [sst_width] 535
 [signals_width] 494
 [sst_expanded] 1
 [sst_vpaned_height] 654
+@29
+top.clk
 @28
 [color] 3
 top.adat_in
-[color] 4
-top.clk_in
 [color] 2
 top.fsm_state
 [color] 2
@@ -44,18 +44,7 @@ top.num_nibbles_counter[2:0]
 top.num_nibbles_counter_prev[2:0]
 [color] 7
 top.active_channel[2:0]
-@28
-[color] 3
-top.U$2.enable_in
 @22
-[color] 3
-top.U$2.value_out[3:0]
-@28
-[color] 2
-top.U$1.enable_in
-@22
-[color] 2
-top.U$1.value_out[23:0]
 [color] 2
 top.sample_out[23:0]
 [color] 2
