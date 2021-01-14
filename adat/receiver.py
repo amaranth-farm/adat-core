@@ -175,4 +175,4 @@ class ADATReceiver(Elaboratable):
 
 if __name__ == "__main__":
     m = ADATReceiver()
-    main(m, name="adat-receiver", ports=[m.clk, m.reset_in, m.adat_in, m.addr_out, m.sample_out, m.output_enable, m.user_data_out])
+    main(m, name="adat_receiver", ports=[m.clk, m.reset_in, m.adat_in, m.addr_out, m.sample_out, m.output_enable, m.user_data_out])
