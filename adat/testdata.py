@@ -43,5 +43,13 @@ def generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_
     samples_8ch = list(TestDataGenerator.chunks([(channelno << 20 | sampleno) for sampleno in range(16) for channelno in range(8)], 8))
     return concatenate_lists([generate_adat_frame(sample_8ch) for sample_8ch in samples_8ch])
 
+def encode_nrzi(input: list) -> list:
+    result = [1]
+    for bit in input:
+        last_bit = result[-1]
+        result.append(last_bit if bit == 0 else (~last_bit) & 1)
+    return result
+
 if __name__ == "__main__":
-    result = list(generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample())
+    result = encode_nrzi(list(generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample()))
+    print(str(result))
