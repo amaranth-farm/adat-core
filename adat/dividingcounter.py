@@ -10,6 +10,7 @@ class DividingCounter(Elaboratable):
         self.divided_counter_out = Signal(width)
         self.dividable_out       = Signal()
         self.divisor = divisor
+        self.width = width
 
     def elaborate(self, platform) -> Module:
         m = Module()
