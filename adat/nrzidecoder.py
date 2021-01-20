@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import math
 
-from nmigen         import Elaboratable, Signal, Module, ClockDomain, Mux
+from nmigen         import Elaboratable, Signal, Module, ClockDomain
 from nmigen.lib.cdc import FFSynchronizer
 from nmigen.cli     import main
 
