@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+"""Counter which runs a subcounter which divides the maincounter"""
 from nmigen import Elaboratable, Signal, Module
 from nmigen.cli import main
 
 class DividingCounter(Elaboratable):
+    """Counter which runs a subcounter which divides the maincounter"""
     def __init__(self, divisor, width):
         self.reset_in            = Signal()
         self.active_in           = Signal()
@@ -12,7 +14,11 @@ class DividingCounter(Elaboratable):
         self.divisor = divisor
         self.width = width
 
+        self.ports = [self.reset_in, self.active_in,
+                      self.counter_out, self.divided_counter_out, self.dividable_out]
+
     def elaborate(self, platform) -> Module:
+        """build the module"""
         m = Module()
 
         dividing_cycle_counter = Signal(range(0, self.divisor))
@@ -49,5 +55,5 @@ class DividingCounter(Elaboratable):
         return m
 
 if __name__ == "__main__":
-    m = DividingCounter()
-    main(m, name="dividing_counter", ports=[m.reset_in, m.active_in, m.counter_out, m.divided_counter_out, m.dividable_out])
+    module = DividingCounter()
+    main(module, name="dividing_counter", ports=module.ports)

@@ -2,7 +2,7 @@
 from nmigen.sim import Simulator, Tick
 
 from nrzidecoder import NRZIDecoder
-from testdata import one_empty_adat_frame, generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample, encode_nrzi
+from testdata import one_empty_adat_frame, sixteen_frames_with_channel_num_msb_and_sample_num, encode_nrzi
 
 def test_with_samplerate(samplerate: int=48000):
     # 24 bit plus the 6 nibble separator bits for eight channel
@@ -16,7 +16,10 @@ def test_with_samplerate(samplerate: int=48000):
     sim = Simulator(dut)
     sim.add_clock(1.0/CLK_FREQ, domain="sync")
     sim.add_clock(1.0/adat_freq, domain="adat")
-    testdata = encode_nrzi(one_empty_adat_frame() + generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample())
+    testdata = encode_nrzi(
+        one_empty_adat_frame() +
+        sixteen_frames_with_channel_num_msb_and_sample_num())
+
     print(f"FPGA clock freq: {CLK_FREQ}")
     print(f"ADAT clock freq: {adat_freq}")
     print(f"FPGA/ADAT freq: {clockratio}")

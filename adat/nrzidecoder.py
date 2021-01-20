@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Find bit timing and decode NRZI"""
+
 import math
 
 from nmigen         import Elaboratable, Signal, Module, ClockDomain
@@ -8,13 +10,16 @@ from nmigen.cli     import main
 from dividingcounter import DividingCounter
 
 class NRZIDecoder(Elaboratable):
+    """Converts a NRZI encoded ADAT stream into a synchronous stream of bits"""
     def __init__(self, clk_freq: int):
         self.nrzi_in     = Signal()
         self.data_out    = Signal()
         self.data_out_en = Signal()
         self.clk_freq    = clk_freq
 
-    def setup_clockdomains(self, m):
+    @staticmethod
+    def setup_clockdomains(m):
+        """creates default and ADAT clock domains"""
         cd_adat = ClockDomain(reset_less=True)
         cd_sync = ClockDomain()
 
@@ -23,9 +28,11 @@ class NRZIDecoder(Elaboratable):
 
     @staticmethod
     def adat_freq(samplerate: int = 48000) -> int:
+        """calculate the ADAT bit rate for the given samplerate"""
         return samplerate * ((24 + 6) * 8 + 1 + 10 + 1 + 4)
 
     def elaborate(self, platform) -> Module:
+        """assemble the module"""
         m = Module()
         self.setup_clockdomains(m)
 
@@ -45,7 +52,7 @@ class NRZIDecoder(Elaboratable):
         sync_counter = DividingCounter(divisor=12, width=7)
         m.submodules.sync_counter = sync_counter
         bit_time = sync_counter.divided_counter_out
-        
+
         with m.FSM():
             with m.State("SYNC"):
                 m.d.sync += [
@@ -60,6 +67,7 @@ class NRZIDecoder(Elaboratable):
         return m
 
     def find_bit_timings(self, m: Module, sync_counter: DividingCounter, got_edge: Signal):
+        """Waits for the ten zero bits of the SYNC section to determine the length of an ADAT bit"""
         bit_time_44100 = math.ceil(110 * (self.clk_freq/self.adat_freq(44100) / 100))
 
         # as long as the input does not change, count up
@@ -70,7 +78,7 @@ class NRZIDecoder(Elaboratable):
             with m.If(sync_counter.counter_out > 10 * bit_time_44100):
                 m.d.sync += sync_counter.reset_in.eq(1)
 
-            # if we are in the middle of the signal, 
+            # if we are in the middle of the signal,
             # and got an edge, then we reset the counter on each edge
             with m.Else():
                 # when the counter is bigger than 3/4 of the old max, then we have a sync frame
@@ -88,12 +96,13 @@ class NRZIDecoder(Elaboratable):
             ]
 
     def decode_nrzi(self, m: Module, bit_time: Signal, got_edge: Signal):
+        """Do the actual decoding of the NRZI bitstream"""
         bit_counter = Signal(7)
         output      = Signal(reset=1)
 
         m.d.sync += bit_counter.eq(bit_counter + 1)
         with m.If(got_edge):
-            m.d.sync += [ 
+            m.d.sync += [
                 # latch 1 until we read it in the middle of the bit
                 output.eq(1),
                 # resynchronize at each bit edge, 1 to compensate
@@ -115,5 +124,5 @@ class NRZIDecoder(Elaboratable):
             m.d.sync += self.data_out_en.eq(0)
 
 if __name__ == "__main__":
-    m = NRZIDecoder()
-    main(m, name="nrzi_decoder", ports=[m.nrzi_in, m.data_out])
+    module = NRZIDecoder()
+    main(module, name="nrzi_decoder", ports=[module.nrzi_in, module.data_out])

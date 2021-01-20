@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from nmigen.sim import Simulator, Tick
 from bittimedetector import ADATBitTimeDetector
-from testdata import one_empty_adat_frame, generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample
+from testdata import one_empty_adat_frame, sixteen_frames_with_channel_num_msb_and_sample_num
 
 if __name__ == "__main__":
     dut = ADATBitTimeDetector()
@@ -23,7 +23,7 @@ if __name__ == "__main__":
             yield Tick()
 
     def adat_process():
-        testdata = one_empty_adat_frame() + generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample()
+        testdata = one_empty_adat_frame() + sixteen_frames_with_channel_num_msb_and_sample_num()
         bitcount = 0
         for bit in testdata[224:512 * 2]:
             yield dut.adat_in.eq(bit)

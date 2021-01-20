@@ -6,13 +6,16 @@
 from nmigen import Elaboratable, Signal, Module
 from nmigen.cli import main_parser, main_runner
 
-class ShiftRegister(Elaboratable):
+# pylint: disable=too-few-public-methods
+class ShiftRegister(Elaboratable):                                                                                
+    """shift register with given depth in bits"""
     def __init__(self, depth):
         self.enable_in = Signal()
         self.bit_in    = Signal()
         self.value_out = Signal(depth)
 
     def elaborate(self, platform) -> Module:
+        """build the module"""
         m = Module()
 
         with m.If(self.enable_in):
@@ -26,6 +29,7 @@ if __name__ == "__main__":
         metavar="DEPTH", type=int, default=8,
         help="set depth of shiftregister to DEPTH  (default: %(default)s)")
     args = parser.parse_args()
-    depth = args.depth
-    m = ShiftRegister(depth)
-    main_runner(parser, args, m, name="ShiftRegister", ports=[m.enable_in, m.bit_in, m.value_out])
+    reg_depth = args.depth
+    module = ShiftRegister(reg_depth)
+    main_runner(parser, args, module, name="ShiftRegister",
+                ports=[module.enable_in, module.bit_in, module.value_out])

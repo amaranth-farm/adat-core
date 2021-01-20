@@ -3,7 +3,7 @@ from random import randrange
 from nmigen.sim import Simulator, Tick
 
 from receiver import ADATReceiver
-from testdata import one_empty_adat_frame, generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample
+from testdata import one_empty_adat_frame, sixteen_frames_with_channel_num_msb_and_sample_num
 
 if __name__ == "__main__":
     receiver = ADATReceiver()
@@ -25,7 +25,7 @@ if __name__ == "__main__":
             yield Tick("sync")
 
     def adat_process():
-        testdata = one_empty_adat_frame() + generate_sixteen_frames_with_channel_numbers_in_most_significant_nibble_and_sample_numbers_in_sample()
+        testdata = one_empty_adat_frame() + sixteen_frames_with_channel_num_msb_and_sample_num()
         for bit in testdata[224:512 * 2]:
             yield receiver.adat_in.eq(bit)
             yield Tick("adat")
