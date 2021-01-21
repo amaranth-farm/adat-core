@@ -1,20 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Tue Jan 19 08:26:55 2021
+[*] Thu Jan 21 06:54:45 2021
 [*]
 [dumpfile] "/devel/HDL/src/adat/nrzi-decoder-bench-44100.vcd"
-[dumpfile_mtime] "Tue Jan 19 08:26:38 2021"
-[dumpfile_size] 196704
+[dumpfile_mtime] "Thu Jan 21 06:54:11 2021"
+[dumpfile_size] 1576011
 [savefile] "/devel/HDL/src/adat/nrzi-decoder-bench-44100.gtkw"
-[timestart] 0
+[timestart] 7440000
 [size] 3822 2022
 [pos] -1 -1
-*-19.127367 2413800 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-22.427368 22720000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [sst_width] 453
 [signals_width] 435
 [sst_expanded] 1
-[sst_vpaned_height] 644
+[sst_vpaned_height] 633
 @28
 top.clk
 top.fsm_state
@@ -24,8 +24,11 @@ top.nrzi
 top.nrzi_prev
 top.sync_counter.active_in
 top.got_edge
-@24
+@8024
 top.sync_counter.counter_out[6:0]
+@20001
+-
+@24
 top.sync_counter.divided_counter_out[6:0]
 @28
 [color] 3
@@ -39,5 +42,11 @@ top.nrzi_prev
 top.data_out_en
 [color] 2
 top.data_out
+@20000
+-
+@8022
+top.dead_counter[7:0]
+@20000
+-
 [pattern_trace] 1
 [pattern_trace] 0

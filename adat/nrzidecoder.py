@@ -97,8 +97,11 @@ class NRZIDecoder(Elaboratable):
 
     def decode_nrzi(self, m: Module, bit_time: Signal, got_edge: Signal):
         """Do the actual decoding of the NRZI bitstream"""
-        bit_counter = Signal(7)
-        output      = Signal(reset=1)
+        bit_counter  = Signal(7)
+        # this counter is used to detect a dead signal
+        # to determine when to go back to SYNC state
+        dead_counter = Signal(8)
+        output       = Signal(reset=1)
 
         m.d.sync += bit_counter.eq(bit_counter + 1)
         with m.If(got_edge):
@@ -107,8 +110,12 @@ class NRZIDecoder(Elaboratable):
                 output.eq(1),
                 # resynchronize at each bit edge, 1 to compensate
                 # for sync delay
-                bit_counter.eq(1)
+                bit_counter.eq(1),
+                # when we get an edge, the signal is alive, reset counter
+                dead_counter.eq(0)
             ]
+        with m.Else():
+            m.d.sync += dead_counter.eq(dead_counter + 1)
 
         # wrap the counter
         with m.If(bit_counter == bit_time):
@@ -122,6 +129,12 @@ class NRZIDecoder(Elaboratable):
             ]
         with m.Else():
             m.d.sync += self.data_out_en.eq(0)
+
+        # when we had no edge for 16 bits worth of time
+        # then we go back to sync state
+        with m.If(dead_counter >= bit_time << 4):
+            m.d.sync += dead_counter.eq(0)
+            m.next = "SYNC"
 
 if __name__ == "__main__":
     module = NRZIDecoder()

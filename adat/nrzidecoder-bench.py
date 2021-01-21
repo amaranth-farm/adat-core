@@ -16,9 +16,14 @@ def test_with_samplerate(samplerate: int=48000):
     sim = Simulator(dut)
     sim.add_clock(1.0/CLK_FREQ, domain="sync")
     sim.add_clock(1.0/adat_freq, domain="adat")
+
+    sixteen_adat_frames = sixteen_frames_with_channel_num_msb_and_sample_num()
     testdata = encode_nrzi(
         one_empty_adat_frame() +
-        sixteen_frames_with_channel_num_msb_and_sample_num())
+        sixteen_adat_frames[0:256] +
+        [0] * 64 +
+        sixteen_adat_frames[256:]
+    )
 
     print(f"FPGA clock freq: {CLK_FREQ}")
     print(f"ADAT clock freq: {adat_freq}")
