@@ -2,10 +2,10 @@
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
 [*] Fri Jan 22 10:56:49 2021
 [*]
-[dumpfile] "/devel/HDL/src/adat/receiver-smoke-test-48000.vcd"
+[dumpfile] "/devel/HDL/src/adat/receiver-smoke-test-44100.vcd"
 [dumpfile_mtime] "Fri Jan 22 10:56:39 2021"
 [dumpfile_size] 2117083
-[savefile] "/devel/HDL/src/adat/receiver-smoke-test-48000.gtkw"
+[savefile] "/devel/HDL/src/adat/receiver-smoke-test-44100.gtkw"
 [timestart] 37481000
 [size] 3822 2022
 [pos] -1 -1
