@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-from nmigen import Elaboratable, Signal, Module, ClockSignal
+"""ADAT receiver core"""
+from nmigen     import Elaboratable, Signal, Module, ClockSignal
 from nmigen.cli import main
 
-from bittimedetector import ADATBitTimeDetector
+from nrzidecoder     import NRZIDecoder
 from shiftregister   import ShiftRegister
 from edgetopulse     import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
-    def __init__(self):
+    def __init__(self, clk_freq):
         self.clk            = ClockSignal()
         self.reset_in       = Signal()
         self.adat_in        = Signal()
@@ -15,12 +16,13 @@ class ADATReceiver(Elaboratable):
         self.sample_out     = Signal(24)
         self.output_enable  = Signal()
         self.user_data_out  = Signal(4)
+        self.clk_freq       = clk_freq
 
     def elaborate(self, platform) -> Module:
         m = Module()
 
-        sync_time_detector = ADATBitTimeDetector()
-        m.submodules.sync_time_detector = sync_time_detector
+        nrzidecoder = NRZIDecoder(self.clk_freq)
+        m.submodules.nrzi_decoder = nrzidecoder
 
         channel_output = ShiftRegister(24)
         m.submodules.channel_out_shifter = channel_output
@@ -28,151 +30,84 @@ class ADATReceiver(Elaboratable):
         user_bits = ShiftRegister(4)
         m.submodules.user_bits_shifter = user_bits
 
-        output_enable_pulse = EdgeToPulse()
-        m.submodules.output_enable_pulse = output_enable_pulse
+        #output_enable_pulse = EdgeToPulse()
+        #m.submodules.output_enable_pulse = output_enable_pulse
 
-        got_sync                 = Signal()
-        bit_time                 = Signal(10)
-        bit_time_counter         = Signal(10)
-        bit_time_counter_enable  = Signal()
-        nibble_bitcounter        = Signal(3)
-        num_nibbles_counter      = Signal(3)
-        num_nibbles_counter_prev = Signal(3)
-        active_channel           = Signal(3)
-        read_user_data           = Signal()
-
-        last_adat_in             = Signal()
+        active_channel = Signal(3)
+        # counts the number of bits output
+        bit_counter = Signal(5)
 
         m.d.comb += [
-            sync_time_detector.adat_in.eq(self.adat_in),
-            got_sync.eq(sync_time_detector.bit_length_out > 0),
-            self.output_enable.eq(output_enable_pulse.pulse_out)
+            #self.output_enable.eq(output_enable_pulse.pulse_out),
+            nrzidecoder.nrzi_in.eq(self.adat_in)
         ]
 
-        m.d.sync += [
-            last_adat_in.eq(self.adat_in)
-        ]
+        with m.FSM():
+            with m.State("WAITING"):
+                with m.If(nrzidecoder.running):
+                    m.d.sync += bit_counter.eq(0)
+                    m.next = "USERBITS"
 
-        #bit counter
-        with m.If(bit_time_counter_enable):
-            with m.If(bit_time_counter < bit_time):
-                m.d.sync += bit_time_counter.eq(bit_time_counter + 1)
-            with m.Else():
-                m.d.sync += bit_time_counter.eq(0)
-            # reset bit counter on each positive edge of adat_in
-            # to prevent counter drift
-            with m.If(self.adat_in & ~last_adat_in):
-                m.d.sync += bit_time_counter.eq(0)
-            # we sample the bit in the middle
-
-        with m.FSM() as fsm:
-            with m.State("FRAME_SYNC"):
-                with m.If(got_sync):
-                    m.d.sync += [
-                        bit_time.eq(sync_time_detector.bit_length_out),
-                        bit_time_counter.eq(3) #due to sync delays we are already at position 3 here
+            with m.State("USERBITS"):
+                # we work and count only when we get
+                # a new bit fron the NRZI decoder
+                with m.If(nrzidecoder.data_out_en):
+                    m.d.comb += [
+                        user_bits.bit_in.eq(nrzidecoder.data_out),
+                        # skip sync bit, which is first
+                        user_bits.enable_in.eq(bit_counter > 0)
                     ]
-                    m.next = "FRAME"
-                with m.Else():
-                    m.d.sync += sync_time_detector.reset_in.eq(0),
-
-            with m.State("WAIT_FRAME_SYNC"):
-                with m.If(self.adat_in):
-                    m.d.sync += sync_time_detector.reset_in.eq(1)
-                with m.Else():
-                    m.d.sync += sync_time_detector.reset_in.eq(0)
-                    m.next = "FRAME_SYNC"
-
-            with m.State("FRAME"):
-                with m.If(bit_time_counter == ((bit_time >> 1) - 1)):
                     m.d.sync += [
-                        bit_time_counter_enable.eq(1),
-                        read_user_data.eq(1),
-                        self.addr_out.eq(0),
-                        active_channel.eq(0)
+                        bit_counter.eq(bit_counter + 1),
                     ]
-                    m.next = "SYNC_BIT"
-
-            with m.State("SYNC_BIT"):
-                with m.If((self.addr_out == 7) & (active_channel == 0)):
-                    m.next = "WAIT_FRAME_SYNC"
+                    with m.If(bit_counter >= 4):
+                        m.d.sync += bit_counter.eq(0)
+                        m.next = "CHANNELS"
                 with m.Else():
-                    with m.If(bit_time_counter == ((bit_time >> 1) + 2)):
-                        m.d.sync += nibble_bitcounter.eq(0)
-                        with m.If(read_user_data):
+                    m.d.comb += user_bits.enable_in.eq(0)
+
+                with m.If(~nrzidecoder.running):
+                    m.next = "WAITING"
+
+            with m.State("CHANNELS"):
+                # turn off user bits reading as soon as we transition here
+                m.d.comb += user_bits.enable_in.eq(0)
+
+                # we work and count only when we get
+                # a new bit fron the NRZI decoder
+                with m.If(nrzidecoder.data_out_en):
+                    m.d.comb += [
+                        channel_output.bit_in.eq(nrzidecoder.data_out),
+                        channel_output.enable_in.eq((bit_counter % 5) > 0)
+                    ]
+                    m.d.sync += [
+                        bit_counter.eq(bit_counter + 1),
+                    ]
+                    # get 8 channels times 5 bits = 40 bits
+                    with m.If(bit_counter >= 23):
+                        m.d.sync += [
+                            bit_counter.eq(0),
+                            self.output_enable.eq(1)
+                        ]
+                        with m.If(active_channel == 8):
                             m.d.sync += [
-                                read_user_data.eq(0),
-                                # make it wrap around so it is at 0 at the first user bit
-                                nibble_bitcounter.eq(7)
+                                self.output_enable.eq(0)
                             ]
-                            m.next = "USER_DATA"
-                        with m.Else():
-                            # make it wrap around so it is at 0 at the first user bit
-                            m.d.sync += nibble_bitcounter.eq(7)
-                            m.next = "DATA_NIBBLE"
-
-            with m.State("USER_DATA"):
-                with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
-                          & (nibble_bitcounter == 4)
-                          & self.adat_in):
-                    m.next = "SYNC_BIT"
-
-                with m.If(bit_time_counter == bit_time >> 1): # in the middle of the bit
-                    with m.If(nibble_bitcounter != 4):
-                        m.d.sync += [
-                            user_bits.enable_in.eq(1),
-                            user_bits.bit_in.eq(self.adat_in),
-                            nibble_bitcounter.eq(nibble_bitcounter + 1)
-                        ]
+                            m.next = "USERBITS"
+                    with m.Else():
+                        m.d.sync += self.output_enable.eq(0)
                 with m.Else():
-                    m.d.sync += user_bits.enable_in.eq(0)
+                    m.d.comb += channel_output.enable_in.eq(0)
 
-                # we are finished reading user data
-                with m.If((nibble_bitcounter == 3) & self.adat_in):
-                    m.d.sync += [
-                        user_bits.enable_in.eq(0),
-                        self.user_data_out.eq(user_bits.value_out)
-                    ]
-                    m.next = "SYNC_BIT"
+                with m.If(~nrzidecoder.running):
+                    m.next = "WAITING"
 
-            with m.State("DATA_NIBBLE"):
-                with m.If(  (bit_time_counter == ((bit_time >> 1) + 1)) # reached timing bit
-                          & (nibble_bitcounter == 4)
-                          & self.adat_in):
-                    m.d.sync += [
-                        num_nibbles_counter_prev.eq(num_nibbles_counter),
-                        num_nibbles_counter.eq(num_nibbles_counter + 1)
-                    ]
-                    with m.If(num_nibbles_counter == 5): # read a full 24 bit sample
-                        m.d.sync += [
-                            self.addr_out.eq(active_channel),
-                            self.sample_out.eq(channel_output.value_out),
-                            output_enable_pulse.edge_in.eq(1),
-                            active_channel.eq(active_channel + 1),
-                            num_nibbles_counter.eq(0)
-                        ]
-                    with m.Else(): # not finished reading sample
-                        m.d.sync += output_enable_pulse.edge_in.eq(0)
 
-                    m.next = "SYNC_BIT"
-
-                with m.Else(): # reached data bit
-                    with m.If(bit_time_counter == bit_time >> 1): # in the middle of the bit
-                        m.d.sync += [
-                            channel_output.bit_in.eq(self.adat_in),
-                            nibble_bitcounter.eq(nibble_bitcounter + 1)
-                        ]
-                        with m.If((nibble_bitcounter == 7) | (nibble_bitcounter <= 2)):
-                            m.d.sync += channel_output.enable_in.eq(1)
-                        with m.Else():
-                            m.d.sync += channel_output.enable_in.eq(0)
-
-                    with m.Else(): # somewhere else in the bit
-                        m.d.sync += [
-                            channel_output.enable_in.eq(0),
-                        ]
         return m
 
 if __name__ == "__main__":
-    m = ADATReceiver()
-    main(m, name="adat_receiver", ports=[m.clk, m.reset_in, m.adat_in, m.addr_out, m.sample_out, m.output_enable, m.user_data_out])
+    r = ADATReceiver()
+    main(r, name="adat_receiver", ports=[
+        r.clk, r.reset_in,
+        r.adat_in, r.addr_out,
+        r.sample_out, r.output_enable, r.user_data_out])

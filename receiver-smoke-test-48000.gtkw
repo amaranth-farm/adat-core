@@ -1,0 +1,41 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Fri Jan 22 04:35:07 2021
+[*]
+[dumpfile] "/devel/HDL/src/adat/receiver-smoke-test-48000.vcd"
+[dumpfile_mtime] "Fri Jan 22 04:34:58 2021"
+[dumpfile_size] 1876742
+[savefile] "/devel/HDL/src/adat/receiver-smoke-test-48000.gtkw"
+[timestart] 19994900
+[size] 3822 2022
+[pos] -1 -1
+*-17.267395 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[sst_width] 535
+[signals_width] 494
+[sst_expanded] 1
+[sst_vpaned_height] 654
+@28
+top.clk
+[color] 3
+top.adat_in
+@29
+[color] 3
+top.nrzi_decoder.data_out
+@28
+[color] 3
+top.nrzi_decoder.data_out_en
+[color] 2
+top.fsm_state
+top.user_bits_shifter.enable_in
+@22
+top.user_bits_shifter.value_out[3:0]
+@24
+top.bit_counter[4:0]
+[color] 7
+top.active_channel[2:0]
+@28
+[color] 2
+top.output_enable
+[pattern_trace] 1
+[pattern_trace] 0
