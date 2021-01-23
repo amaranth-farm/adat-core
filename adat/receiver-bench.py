@@ -22,12 +22,13 @@ def test_with_samplerate(samplerate: int=48000):
     sim.add_clock(1.0/adat_freq, domain="adat")
 
     sixteen_adat_frames = sixteen_frames_with_channel_num_msb_and_sample_num()
-    testdata = encode_nrzi(
-        one_empty_adat_frame() +
-        sixteen_adat_frames[0:256] +
-        [0] * 64 +
+    testdata = \
+        one_empty_adat_frame() + \
+        sixteen_adat_frames[0:256] + \
+        [0] * 64 + \
         sixteen_adat_frames[256:]
-    )
+
+    testdata_nrzi = encode_nrzi(testdata)
 
     print(f"FPGA clock freq: {clk_freq}")
     print(f"ADAT clock freq: {adat_freq}")
@@ -40,7 +41,7 @@ def test_with_samplerate(samplerate: int=48000):
             yield Tick("sync")
 
     def adat_process():
-        for bit in testdata: #[224:512 * 2]:
+        for bit in testdata_nrzi: #[224:512 * 2]:
             yield dut.adat_in.eq(bit)
             yield Tick("adat")
 

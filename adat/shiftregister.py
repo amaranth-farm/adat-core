@@ -7,18 +7,21 @@ from nmigen import Elaboratable, Signal, Module
 from nmigen.cli import main_parser, main_runner
 
 # pylint: disable=too-few-public-methods
-class ShiftRegister(Elaboratable):                                                                                
+class ShiftRegister(Elaboratable):                                                                         
     """shift register with given depth in bits"""
     def __init__(self, depth):
         self.enable_in = Signal()
         self.bit_in    = Signal()
+        self.clear_in  = Signal()
         self.value_out = Signal(depth)
 
     def elaborate(self, platform) -> Module:
         """build the module"""
         m = Module()
 
-        with m.If(self.enable_in):
+        with m.If(self.clear_in):
+            m.d.sync += self.value_out.eq(0)
+        with m.Elif(self.enable_in):
             m.d.sync += self.value_out.eq((self.value_out << 1) | self.bit_in)
 
         return m

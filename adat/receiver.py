@@ -5,6 +5,7 @@ from nmigen.cli import main
 
 from nrzidecoder     import NRZIDecoder
 from shiftregister   import ShiftRegister
+from edgetopulse     import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     """
@@ -27,34 +28,63 @@ class ADATReceiver(Elaboratable):
         nrzidecoder = NRZIDecoder(self.clk_freq)
         m.submodules.nrzi_decoder = nrzidecoder
 
-        frame_shifter = ShiftRegister(int(240*4/5))
-        m.submodules.frame_shifter = frame_shifter
+        framedata_shifter = ShiftRegister(24)
+        m.submodules.framedata_shifter = framedata_shifter
+
+        output_pulser = EdgeToPulse()
+        m.submodules.output_pulser = output_pulser
 
         active_channel = Signal(3)
         # counts the number of bits output
         bit_counter    = Signal(8)
         nibble_counter = Signal(3)
 
-        m.d.comb += [
-            self.user_data_out.eq(frame_shifter.value_out[0:4]),
-            nrzidecoder.nrzi_in.eq(self.adat_in)
-        ]
+        m.d.comb += [ nrzidecoder.nrzi_in.eq(self.adat_in) ]
 
         with m.FSM():
             # wait for SYNC
             with m.State("WAIT_SYNC"):
                 with m.If(nrzidecoder.running):
-                    m.d.sync += bit_counter.eq(0)
+                    m.d.sync += [
+                        bit_counter.eq(0),
+                        nibble_counter.eq(0),
+                        active_channel.eq(0),
+                        output_pulser.edge_in.eq(0)
+                    ]
                     m.next = "READ_FRAME"
 
             with m.State("READ_FRAME"):
+                # at which bit of bit_counter to output sample data at
+                output_at = Signal(8)
+
+                # user bits have been read
+                with m.If(bit_counter == 5):
+                    m.d.sync += [
+                        # output user bits
+                        self.user_data_out.eq(framedata_shifter.value_out[0:4]),
+                        # at bit 35 the first channel has been read
+                        output_at.eq(35)
+                    ]
+
+                # when each channel has been read, output the channel's sample
+                with m.If((bit_counter > 5) & (bit_counter == output_at)):
+                    m.d.sync += [
+                        self.addr_out.eq(active_channel),
+                        self.sample_out.eq(framedata_shifter.value_out),
+                        self.output_enable.eq(1),
+                        output_at.eq(output_at + 30),
+                        active_channel.eq(active_channel + 1)
+                    ]
+                with m.Else():
+                    m.d.sync += self.output_enable.eq(0)
+
                 # we work and count only when we get
                 # a new bit fron the NRZI decoder
                 with m.If(nrzidecoder.data_out_en):
                     m.d.comb += [
-                        frame_shifter.bit_in.eq(nrzidecoder.data_out),
+                        framedata_shifter.bit_in.eq(nrzidecoder.data_out),
                         # skip sync bit, which is first
-                        frame_shifter.enable_in.eq(~(nibble_counter == 0))
+                        framedata_shifter.enable_in.eq(~(nibble_counter == 0))
                     ]
                     m.d.sync += [
                         nibble_counter.eq(nibble_counter + 1),
@@ -64,25 +94,36 @@ class ADATReceiver(Elaboratable):
                         m.d.sync += nibble_counter.eq(0)
                     # 239 channel bits and 5 user bits (including sync bits)
                     with m.If(bit_counter >= (239 + 5)):
-                        m.d.sync += bit_counter.eq(0)
+                        m.d.sync += [
+                            bit_counter.eq(0),
+                            output_pulser.edge_in.eq(1)
+                        ]
                         m.next = "READ_SYNC"
                 with m.Else():
-                    m.d.comb += frame_shifter.enable_in.eq(0)
+                    m.d.comb += framedata_shifter.enable_in.eq(0)
 
                 with m.If(~nrzidecoder.running):
                     m.next = "WAIT_SYNC"
 
             # read the sync bits
             with m.State("READ_SYNC"):
+                m.d.sync += [
+                    self.output_enable.eq(output_pulser.pulse_out),
+                    self.addr_out.eq(active_channel),
+                    self.sample_out.eq(framedata_shifter.value_out),
+                ]
+
                 with m.If(nrzidecoder.data_out_en):
-                    m.d.comb += [
-                        frame_shifter.enable_in.eq(0),
-                        frame_shifter.bit_in.eq(nrzidecoder.data_out)
-                    ]
                     m.d.sync += [
                         nibble_counter.eq(0),
                         bit_counter.eq(bit_counter + 1),
                     ]
+
+                    with m.If(bit_counter == 9):
+                        m.d.comb += [
+                            framedata_shifter.enable_in.eq(0),
+                            framedata_shifter.clear_in.eq(1),
+                        ]
 
                     #check last sync bit before sync trough
                     with m.If((bit_counter == 0) & ~nrzidecoder.data_out):
@@ -93,7 +134,9 @@ class ADATReceiver(Elaboratable):
                     with m.Elif(bit_counter >= 10 & ~nrzidecoder.data_out):
                         m.d.sync += [
                             bit_counter.eq(0),
-                            nibble_counter.eq(0)
+                            nibble_counter.eq(0),
+                            active_channel.eq(0),
+                            output_pulser.edge_in.eq(0)
                         ]
                         m.next = "READ_FRAME"
 
