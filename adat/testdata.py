@@ -12,7 +12,7 @@ class TestDataGenerator:
     sync = [1]
 
     @staticmethod
-    def postamble(userbits: list = None) -> list:
+    def preamble(userbits: list = None) -> list:
         """append sync bits and user bits"""
         if userbits is None:
             userbits = 4 * [0]
@@ -33,15 +33,13 @@ class TestDataGenerator:
         bitstring = [ int(b) for b in concatenate_lists(
                         ['1' + s for s in
                             TestDataGenerator.chunks("{0:024b}".format(sample24bit), 4)])]
-        print (bitstring)
         return bitstring
 
     @staticmethod
     def generate_adat_frame(sample_8channels: list) -> list:
         """converts an eight channel sample into an ADAT frame"""
-        frame = concatenate_lists(
-            [TestDataGenerator.convert_sample(sample_1ch) for sample_1ch in sample_8channels])
-        frame.extend(TestDataGenerator.postamble())
+        frame = TestDataGenerator.preamble([0, 1, 0, 1]) + concatenate_lists(
+                [TestDataGenerator.convert_sample(sample_1ch) for sample_1ch in sample_8channels])
         return frame
 
 def generate_adat_frame(sample_8channels: list) -> list:
