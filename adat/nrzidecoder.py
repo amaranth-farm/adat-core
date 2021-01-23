@@ -56,15 +56,15 @@ class NRZIDecoder(Elaboratable):
 
         with m.FSM():
             with m.State("SYNC"):
+                m.d.comb += self.running.eq(0)
                 m.d.sync += [
-                    self.running.eq(0),
                     self.data_out.eq(0),
                     self.data_out_en.eq(0)
                 ]
                 self.find_bit_timings(m, sync_counter, got_edge)
 
             with m.State("DECODE"):
-                m.d.sync += self.running.eq(1)
+                m.d.comb += self.running.eq(1)
                 self.decode_nrzi(m, bit_time, got_edge)
 
         return m

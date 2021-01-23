@@ -2,10 +2,10 @@
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
 [*] Thu Jan 21 06:54:45 2021
 [*]
-[dumpfile] "/devel/HDL/src/adat/nrzi-decoder-bench-44100.vcd"
+[dumpfile] "nrzi-decoder-bench-44100.vcd"
 [dumpfile_mtime] "Thu Jan 21 06:54:11 2021"
 [dumpfile_size] 1576011
-[savefile] "/devel/HDL/src/adat/nrzi-decoder-bench-44100.gtkw"
+[savefile] "nrzi-decoder-bench-44100.gtkw"
 [timestart] 7440000
 [size] 3822 2022
 [pos] -1 -1

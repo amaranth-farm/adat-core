@@ -1,25 +1,28 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Fri Jan 22 10:56:49 2021
+[*] Sat Jan 23 06:54:25 2021
 [*]
 [dumpfile] "receiver-smoke-test-44100.vcd"
-[dumpfile_mtime] "Fri Jan 22 10:56:39 2021"
-[dumpfile_size] 2117083
+[dumpfile_mtime] "Sat Jan 23 06:54:12 2021"
+[dumpfile_size] 1750334
 [savefile] "receiver-smoke-test-44100.gtkw"
-[timestart] 37481000
+[timestart] 51933600
 [size] 3822 2022
 [pos] -1 -1
-*-18.505661 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-16.252075 52136700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
+[treeopen] top.nrzi_decoder.
 [sst_width] 427
-[signals_width] 315
+[signals_width] 435
 [sst_expanded] 1
-[sst_vpaned_height] 643
+[sst_vpaned_height] 632
 @28
 top.clk
-top.adat_in
+top.nrzi_decoder.cdc.nrzi
 @200
 -NRZI Decoder
+@29
+top.nrzi_decoder.running
 @28
 [color] 3
 top.nrzi_decoder.data_out
