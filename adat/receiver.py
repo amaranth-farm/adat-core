@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ADAT receiver core"""
-from nmigen     import Elaboratable, Signal, Module, ClockSignal
+from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
 from nmigen.cli import main
 
 from nrzidecoder     import NRZIDecoder
@@ -38,8 +38,11 @@ class ADATReceiver(Elaboratable):
 
         active_channel = Signal(3)
         # counts the number of bits output
-        bit_counter    = Signal(8)
-        nibble_counter = Signal(3)
+        bit_counter      = Signal(8)
+        # counts the bit position iside a nibble
+        nibble_counter   = Signal(3)
+        # counts, how many 0 bits it got in a row
+        sync_bit_counter = Signal(4)
 
         comb += [ nrzidecoder.nrzi_in.eq(self.adat_in) ]
 
@@ -53,7 +56,12 @@ class ADATReceiver(Elaboratable):
                         active_channel.eq(0),
                         output_pulser.edge_in.eq(0)
                     ]
-                    m.next = "READ_FRAME"
+
+                    with m.If(nrzidecoder.data_out_en):
+                        m.d.sync += sync_bit_counter.eq(Mux(nrzidecoder.data_out, 0, sync_bit_counter + 1))
+                        with m.If(sync_bit_counter == 9):
+                            m.d.sync += sync_bit_counter.eq(0)
+                            m.next = "READ_FRAME"
 
             with m.State("READ_FRAME"):
                 # at which bit of bit_counter to output sample data at
@@ -133,7 +141,7 @@ class ADATReceiver(Elaboratable):
                     #check all the null bits in the sync trough
                     with m.Elif((bit_counter > 0) & nrzidecoder.data_out):
                         m.next = "WAIT_SYNC"
-                    with m.Elif(bit_counter >= 10 & ~nrzidecoder.data_out):
+                    with m.Elif((bit_counter == 10) & ~nrzidecoder.data_out):
                         sync += [
                             bit_counter.eq(0),
                             nibble_counter.eq(0),
