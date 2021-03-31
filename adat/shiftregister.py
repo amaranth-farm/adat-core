@@ -7,7 +7,7 @@ from nmigen import Elaboratable, Signal, Module
 from nmigen.cli import main_parser, main_runner
 
 # pylint: disable=too-few-public-methods
-class ShiftRegister(Elaboratable):                                                                         
+class ShiftRegister(Elaboratable):
     """shift register with given depth in bits"""
     def __init__(self, depth):
         self.enable_in = Signal()
