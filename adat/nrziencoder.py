@@ -14,7 +14,7 @@ class NRZIEncoder(Elaboratable):
         """ build the module """
         m = Module()
 
-        m.d.sync += [
+        m.d.adat += [
             self.nrzi_out.eq(Mux(self.data_in, ~self.nrzi_out, self.nrzi_out)),
         ]
 

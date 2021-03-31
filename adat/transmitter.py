@@ -43,31 +43,39 @@ class ADATTransmitter(Elaboratable):
         filler_bits     = [Const(1, 1) for _ in range(8 * 6 + 2)]
         sync_pad        = Const(0, 10)
 
+        assembled_frame = Signal(256)
         audio_bits      = Cat(audio_channels)
         audio_nibbles   = list(self.chunks(audio_bits, 4))
-        assembled_frame = Cat(zip(filler_bits, audio_nibbles + [sync_pad, user_bits]))
+        comb += assembled_frame.eq(Cat(zip(filler_bits, audio_nibbles + [sync_pad, user_bits])))
 
         transmit_fifo = AsyncFIFO(width=256, depth=4, w_domain="sync", r_domain="adat")
+        m.submodules.transmit_fifo = transmit_fifo
 
         comb += self.ready_out.eq(transmit_fifo.w_rdy)
 
+        frame_complete = Signal()
         with m.If(self.valid_in & self.ready_out):
             sync += [
                 audio_channels[self.addr_in].eq(self.sample_in),
                 user_bits.eq(self.user_data_in)
             ]
             with m.If(self.last_in):
-                sync += [
-                    transmit_fifo.w_data.eq(assembled_frame),
-                    transmit_fifo.w_en.eq(1)
-                ]
+                sync += frame_complete.eq(1)
+
+        with m.Elif(frame_complete):
+            sync += [
+                transmit_fifo.w_data.eq(assembled_frame),
+                transmit_fifo.w_en.eq(1),
+                frame_complete.eq(0)
+            ]
+
         with m.Else():
             sync += transmit_fifo.w_en.eq(0)
 
         transmitted_frame_bits = Array([Signal() for _ in range(256)])
         transmitted_frame = Cat(transmitted_frame_bits)
 
-        nrzi_encoder = NRZIEncoder()
+        m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
         comb += self.adat_out.eq(nrzi_encoder.nrzi_out)
 
         transmit_counter = Signal(8)
