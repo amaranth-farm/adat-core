@@ -94,7 +94,7 @@ class ADATTransmitter(Elaboratable):
         comb += nrzi_encoder.data_in.eq(transmitted_frame_bits[transmit_counter]),
         adat += transmit_counter.eq(transmit_counter + 1)
 
-        with m.If((transmit_counter == 254) & transmit_fifo.r_rdy):
+        with m.If((transmit_counter == 255) & transmit_fifo.r_rdy):
             adat += [
                 transmit_fifo.r_en.eq(1),
                 transmitted_frame.eq(transmit_fifo.r_data)

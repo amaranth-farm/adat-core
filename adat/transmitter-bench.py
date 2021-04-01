@@ -18,7 +18,7 @@ def test_with_samplerate(samplerate: int=48000):
     sim.add_clock(1.0/clk_freq, domain="sync")
     sim.add_clock(1.0/adat_freq, domain="adat")
 
-    no_cycles = 600
+
     def write(addr: int, sample: int, last: bool = False):
         if last:
             yield dut.last_in.eq(1)
@@ -30,17 +30,26 @@ def test_with_samplerate(samplerate: int=48000):
         if last:
             yield dut.last_in.eq(0)
 
+    def wait(n_cycles: int):
+        for _ in range(int(clockratio) * n_cycles):
+            yield Tick("sync")
+
     def sync_process():
         yield Tick("sync")
         yield Tick("sync")
-        yield dut.user_data_in.eq(5)
+        yield dut.user_data_in.eq(0xf)
         for i in range(4):
             yield from write(i, i)
         for i in range(4):
             yield from write(4 + i, 0xc + i, i == 3)
-        yield Tick("sync")
-        for _ in range(int(clockratio) * no_cycles):
-            yield Tick("sync")
+        yield from wait(300)
+        yield dut.user_data_in.eq(0x5)
+        for i in range(4):
+            yield from write(i, i << 20)
+        for i in range(4):
+            yield from write(4 + i, (0xc + i) << 20, i == 3)
+        yield from wait(600)
+
 
     sim.add_sync_process(sync_process, domain="sync")
 

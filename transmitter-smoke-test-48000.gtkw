@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Thu Apr  1 05:05:35 2021
+[*] Thu Apr  1 05:38:04 2021
 [*]
-[dumpfile] "/devel/HDL/src/adat/transmitter-smoke-test-48000.vcd"
-[dumpfile_mtime] "Thu Apr  1 05:03:31 2021"
-[dumpfile_size] 145950
-[savefile] "/devel/HDL/src/adat/transmitter-smoke-test-48000.gtkw"
-[timestart] 0
+[dumpfile] "transmitter-smoke-test-48000.vcd"
+[dumpfile_mtime] "Thu Apr  1 05:28:45 2021"
+[dumpfile_size] 215780
+[savefile] "transmitter-smoke-test-48000.gtkw"
+[timestart] 17400000
 [size] 3822 2022
 [pos] -1 -1
-*-22.495289 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-21.623026 3214500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [sst_width] 427
 [signals_width] 360
@@ -17,6 +17,9 @@
 [sst_vpaned_height] 633
 @28
 top.clk
+@200
+-Input Stream
+@28
 top.addr_in[2:0]
 @22
 top.sample_in[23:0]
@@ -25,28 +28,51 @@ top.user_bits[3:0]
 top.last_in
 top.ready_out
 top.valid_in
+@200
+-Frame assembly
 @22
+[color] 7
 top.channel0[23:0]
+[color] 7
 top.channel1[23:0]
+[color] 7
 top.channel2[23:0]
+[color] 7
 top.channel3[23:0]
+[color] 7
 top.channel4[23:0]
+[color] 7
 top.channel5[23:0]
+[color] 7
 top.channel6[23:0]
+[color] 7
 top.channel7[23:0]
+[color] 7
 top.user_bits[3:0]
+[color] 7
 top.assembled_frame[255:0]
+@200
+-Transmit FIFO w/CDC
+@28
+[color] 3
+top.w_rdy
+[color] 3
+top.w_en
+@22
+[color] 3
 top.w_data[255:0]
-@23
+[color] 3
 top.r_data[255:0]
 @28
-top.w_en
-top.w_rdy
+[color] 3
 top.transmit_fifo.r_level[2:0]
+@29
 [color] 3
 top.adat_clk
+@200
+-Output
 @22
-[color] 3
+[color] 2
 top.transmit_counter[7:0]
 @28
 [color] 2
