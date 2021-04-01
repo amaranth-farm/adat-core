@@ -33,6 +33,7 @@ def test_with_samplerate(samplerate: int=48000):
     def sync_process():
         yield Tick("sync")
         yield Tick("sync")
+        yield dut.user_data_in.eq(5)
         for i in range(4):
             yield from write(i, i)
         for i in range(4):

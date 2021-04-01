@@ -6,6 +6,7 @@ from nmigen.cli     import main
 
 class NRZIEncoder(Elaboratable):
     """Converts a synchronous stream of bits into a NRZI encoded ADAT stream"""
+
     def __init__(self):
         self.nrzi_out   = Signal()
         self.data_in    = Signal()
@@ -14,9 +15,10 @@ class NRZIEncoder(Elaboratable):
         """ build the module """
         m = Module()
 
-        m.d.adat += [
-            self.nrzi_out.eq(Mux(self.data_in, ~self.nrzi_out, self.nrzi_out)),
-        ]
+        m.d.adat += self.nrzi_out.eq(
+                        Mux(self.data_in,
+                            ~self.nrzi_out,
+                            self.nrzi_out)),
 
         return m
 

@@ -1,20 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Wed Mar 31 22:11:07 2021
+[*] Thu Apr  1 05:05:35 2021
 [*]
-[dumpfile] "transmitter-smoke-test-48000.vcd"
-[dumpfile_mtime] "Wed Mar 31 21:59:46 2021"
-[dumpfile_size] 145658
-[savefile] "transmitter-smoke-test-48000.gtkw"
+[dumpfile] "/devel/HDL/src/adat/transmitter-smoke-test-48000.vcd"
+[dumpfile_mtime] "Thu Apr  1 05:03:31 2021"
+[dumpfile_size] 145950
+[savefile] "/devel/HDL/src/adat/transmitter-smoke-test-48000.gtkw"
 [timestart] 0
 [size] 3822 2022
 [pos] -1 -1
-*-21.652647 6591700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-22.495289 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [sst_width] 427
 [signals_width] 360
 [sst_expanded] 1
-[sst_vpaned_height] 644
+[sst_vpaned_height] 633
 @28
 top.clk
 top.addr_in[2:0]
@@ -26,16 +26,19 @@ top.last_in
 top.ready_out
 top.valid_in
 @22
-top.$signal[23:0]
-top.$signal$1[23:0]
-top.$signal$2[23:0]
-top.$signal$3[23:0]
-top.$signal$4[23:0]
-top.$signal$5[23:0]
-top.$signal$6[23:0]
-top.$signal$7[23:0]
+top.channel0[23:0]
+top.channel1[23:0]
+top.channel2[23:0]
+top.channel3[23:0]
+top.channel4[23:0]
+top.channel5[23:0]
+top.channel6[23:0]
+top.channel7[23:0]
+top.user_bits[3:0]
 top.assembled_frame[255:0]
 top.w_data[255:0]
+@23
+top.r_data[255:0]
 @28
 top.w_en
 top.w_rdy
@@ -48,7 +51,6 @@ top.transmit_counter[7:0]
 @28
 [color] 2
 top.nrzi_encoder.data_in
-@29
 [color] 2
 top.adat_out
 [pattern_trace] 1
