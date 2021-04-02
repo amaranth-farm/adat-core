@@ -4,11 +4,9 @@
     ADAT output is in the ADAT clock domain
 """
 
-from shiftregister   import OutputShiftRegister
 from nmigen          import Elaboratable, Signal, Module, Cat, Const, Array, \
                             ClockDomain, ClockSignal, ResetSignal
 from nmigen.lib.fifo import AsyncFIFO
-from nmigen.hdl.xfrm import DomainRenamer
 from nmigen.cli      import main
 
 from nrziencoder import NRZIEncoder
@@ -86,29 +84,26 @@ class ADATTransmitter(Elaboratable):
             # make sure, w_en is only asserted for one cycle
             sync += transmit_fifo.w_en.eq(0)
 
+        transmitted_frame_bits = Array([Signal(name=f"frame_bit{b}") for b in range(256)])
+        transmitted_frame = Cat(transmitted_frame_bits)
+
         m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
         comb += self.adat_out.eq(nrzi_encoder.nrzi_out)
 
-        m.submodules.output_shifter = output_shifter = DomainRenamer("adat")(OutputShiftRegister(256, rotate=True))
-        comb += [
-            nrzi_encoder.data_in.eq(output_shifter.bit_out),
-            output_shifter.enable_in.eq(1)
-        ]
-
         transmit_counter = Signal(8)
+        # just wire up the transmitted frame bit so that it
+        # is synchronous to transmit_counter
+        # no necessity to add a cycle of latency here
+        comb += nrzi_encoder.data_in.eq(transmitted_frame_bits[transmit_counter]),
         adat += transmit_counter.eq(transmit_counter + 1)
 
         with m.If((transmit_counter == 255) & transmit_fifo.r_rdy):
-            comb += [
+            adat += [
                 transmit_fifo.r_en.eq(1),
-                output_shifter.we_in.eq(1),
-                output_shifter.value_in.eq(transmit_fifo.r_data)
+                transmitted_frame.eq(transmit_fifo.r_data)
             ]
         with m.Else():
-            comb += [
-                transmit_fifo.r_en.eq(0),
-                output_shifter.we_in.eq(0)
-            ]
+            adat += transmit_fifo.r_en.eq(0)
 
         return m
 
