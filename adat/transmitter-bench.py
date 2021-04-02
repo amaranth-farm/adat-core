@@ -48,7 +48,7 @@ def test_with_samplerate(samplerate: int=48000):
             yield from write(i, i << 20)
         for i in range(4):
             yield from write(4 + i, (0xc + i) << 20, i == 3)
-        yield from wait(600)
+        yield from wait(900)
 
 
     sim.add_sync_process(sync_process, domain="sync")

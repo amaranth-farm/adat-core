@@ -2,10 +2,10 @@
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
 [*] Fri Dec 25 04:55:34 2020
 [*]
-[dumpfile] "shift-register.vcd"
+[dumpfile] "shift-register-in.vcd"
 [dumpfile_mtime] "Fri Dec 25 04:55:26 2020"
 [dumpfile_size] 2686
-[savefile] "shift-register.gtkw"
+[savefile] "shift-register-in.gtkw"
 [timestart] 7624000
 [size] 3822 2017
 [pos] -1 -1

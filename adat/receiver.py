@@ -4,7 +4,7 @@ from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
 from nmigen.cli import main
 
 from nrzidecoder     import NRZIDecoder
-from shiftregister   import ShiftRegister
+from shiftregister   import InputShiftRegister
 from edgetopulse     import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
@@ -30,7 +30,7 @@ class ADATReceiver(Elaboratable):
         nrzidecoder = NRZIDecoder(self.clk_freq)
         m.submodules.nrzi_decoder = nrzidecoder
 
-        framedata_shifter = ShiftRegister(24)
+        framedata_shifter = InputShiftRegister(24)
         m.submodules.framedata_shifter = framedata_shifter
 
         output_pulser = EdgeToPulse()
