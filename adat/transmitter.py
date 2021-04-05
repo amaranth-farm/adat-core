@@ -51,7 +51,7 @@ class ADATTransmitter(Elaboratable):
 
         # build ADAT frame
         assembled_frame = Signal(256)
-        audio_bits      = Cat(audio_channels)
+        audio_bits      = Cat(audio_channels[::-1])[::-1]
         audio_nibbles   = list(self.chunks(audio_bits, 4))
         comb += assembled_frame.eq(Cat(zip(filler_bits, [sync_pad, user_bits] + audio_nibbles)))
 
