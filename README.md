@@ -6,4 +6,4 @@ NOTE: this is work in progress and not ready for general use
 UPDATE:
 
     * The receiver core has been tested working on FPGA
-    * The transmitter core works in the simulator
+    * The transmitter core has been tested working on FPGA
