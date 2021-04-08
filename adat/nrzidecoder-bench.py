@@ -39,9 +39,20 @@ def test_with_samplerate(samplerate: int=48000):
             yield Tick("sync")
 
     def adat_process():
+        bitcount :int = 0
         for bit in testdata: #[224:512 * 2]:
+            if (bitcount == 4 * 256 + 64):
+                yield dut.invalid_frame_in.eq(1)
+                yield Tick("adat")
+                yield dut.invalid_frame_in.eq(0)
+                for _ in range(20):
+                    yield Tick("adat")
+            else:
+                yield dut.invalid_frame_in.eq(0)
+
             yield dut.nrzi_in.eq(bit)
             yield Tick("adat")
+            bitcount += 1
 
     sim.add_sync_process(sync_process, domain="sync")
     sim.add_sync_process(adat_process, domain="adat")
