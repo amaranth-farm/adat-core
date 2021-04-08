@@ -49,6 +49,10 @@ class ADATReceiver(Elaboratable):
         with m.FSM():
             # wait for SYNC
             with m.State("WAIT_SYNC"):
+                # reset invalid frame bit to be able to start again
+                with m.If(nrzidecoder.invalid_frame_in):
+                    sync += nrzidecoder.invalid_frame_in.eq(0)
+
                 with m.If(nrzidecoder.running):
                     sync += [
                         bit_counter.eq(0),
@@ -79,9 +83,9 @@ class ADATReceiver(Elaboratable):
                 # when each channel has been read, output the channel's sample
                 with m.If((bit_counter > 5) & (bit_counter == output_at)):
                     sync += [
+                        self.output_enable.eq(1),
                         self.addr_out.eq(active_channel),
                         self.sample_out.eq(framedata_shifter.value_out),
-                        self.output_enable.eq(1),
                         output_at.eq(output_at + 30),
                         active_channel.eq(active_channel + 1)
                     ]
@@ -100,8 +104,17 @@ class ADATReceiver(Elaboratable):
                         nibble_counter.eq(nibble_counter + 1),
                         bit_counter.eq(bit_counter + 1),
                     ]
+
+                    # check 4b/5b sync bit
+                    with m.If((nibble_counter == 0) & ~nrzidecoder.data_out):
+                        sync += nrzidecoder.invalid_frame_in.eq(1)
+                        m.next = "WAIT_SYNC"
+                    with m.Else():
+                        sync += nrzidecoder.invalid_frame_in.eq(0)
+
                     with m.If(nibble_counter >= 4):
                         sync += nibble_counter.eq(0)
+
                     # 239 channel bits and 5 user bits (including sync bits)
                     with m.If(bit_counter >= (239 + 5)):
                         sync += [
@@ -109,6 +122,7 @@ class ADATReceiver(Elaboratable):
                             output_pulser.edge_in.eq(1)
                         ]
                         m.next = "READ_SYNC"
+
                 with m.Else():
                     comb += framedata_shifter.enable_in.eq(0)
 
@@ -137,18 +151,23 @@ class ADATReceiver(Elaboratable):
 
                     #check last sync bit before sync trough
                     with m.If((bit_counter == 0) & ~nrzidecoder.data_out):
+                        sync += nrzidecoder.invalid_frame_in.eq(1)
                         m.next = "WAIT_SYNC"
                     #check all the null bits in the sync trough
                     with m.Elif((bit_counter > 0) & nrzidecoder.data_out):
+                        sync += nrzidecoder.invalid_frame_in.eq(1)
                         m.next = "WAIT_SYNC"
                     with m.Elif((bit_counter == 10) & ~nrzidecoder.data_out):
                         sync += [
                             bit_counter.eq(0),
                             nibble_counter.eq(0),
                             active_channel.eq(0),
-                            output_pulser.edge_in.eq(0)
+                            output_pulser.edge_in.eq(0),
+                            nrzidecoder.invalid_frame_in.eq(0)
                         ]
                         m.next = "READ_FRAME"
+                    with m.Else():
+                        sync += nrzidecoder.invalid_frame_in.eq(0)
 
                 with m.If(~nrzidecoder.running):
                     m.next = "WAIT_SYNC"

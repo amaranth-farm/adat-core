@@ -12,11 +12,13 @@ from dividingcounter import DividingCounter
 class NRZIDecoder(Elaboratable):
     """Converts a NRZI encoded ADAT stream into a synchronous stream of bits"""
     def __init__(self, clk_freq: int):
-        self.nrzi_in     = Signal()
-        self.data_out    = Signal()
-        self.data_out_en = Signal()
-        self.running     = Signal()
-        self.clk_freq    = clk_freq
+        self.nrzi_in             = Signal()
+        self.invalid_frame_in    = Signal()
+        self.data_out            = Signal()
+        self.data_out_en         = Signal()
+        self.recovered_clock_out = Signal()
+        self.running             = Signal()
+        self.clk_freq            = clk_freq
 
     @staticmethod
     def setup_clockdomains(m):
@@ -61,13 +63,14 @@ class NRZIDecoder(Elaboratable):
                 comb += self.running.eq(0)
                 sync += [
                     self.data_out.eq(0),
-                    self.data_out_en.eq(0)
+                    self.data_out_en.eq(0),
+                    sync_counter.reset_in.eq(0)
                 ]
                 self.find_bit_timings(m, sync_counter, got_edge)
 
             with m.State("DECODE"):
                 comb += self.running.eq(1)
-                self.decode_nrzi(m, bit_time, got_edge)
+                self.decode_nrzi(m, bit_time, got_edge, sync_counter)
 
         return m
 
@@ -101,7 +104,7 @@ class NRZIDecoder(Elaboratable):
                 sync_counter.active_in.eq(1)
             ]
 
-    def decode_nrzi(self, m: Module, bit_time: Signal, got_edge: Signal):
+    def decode_nrzi(self, m: Module, bit_time: Signal, got_edge: Signal, sync_counter: DividingCounter):
         """Do the actual decoding of the NRZI bitstream"""
         sync = m.d.sync
         bit_counter  = Signal(7)
@@ -109,6 +112,16 @@ class NRZIDecoder(Elaboratable):
         # to determine when to go back to SYNC state
         dead_counter = Signal(8)
         output       = Signal(reset=1)
+
+        # when the frame decoder got garbage
+        # then we need to go back to SYNC state
+        with m.If(self.invalid_frame_in):
+            sync += [ 
+                sync_counter.reset_in.eq(1),
+                bit_counter.eq(0),
+                dead_counter.eq(0)
+                ]
+            m.next = "SYNC"
 
         sync += bit_counter.eq(bit_counter + 1)
         with m.If(got_edge):
