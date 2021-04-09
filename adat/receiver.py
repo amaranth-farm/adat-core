@@ -12,14 +12,15 @@ class ADATReceiver(Elaboratable):
         implements the ADAT protocol
     """
     def __init__(self, clk_freq):
-        self.clk            = ClockSignal()
-        self.reset_in       = Signal()
-        self.adat_in        = Signal()
-        self.addr_out       = Signal(3)
-        self.sample_out     = Signal(24)
-        self.output_enable  = Signal()
-        self.user_data_out  = Signal(4)
-        self.clk_freq       = clk_freq
+        self.clk                 = ClockSignal()
+        self.reset_in            = Signal()
+        self.adat_in             = Signal()
+        self.addr_out            = Signal(3)
+        self.sample_out          = Signal(24)
+        self.output_enable       = Signal()
+        self.user_data_out       = Signal(4)
+        self.recovered_clock_out = Signal()
+        self.clk_freq            = clk_freq
 
     def elaborate(self, platform) -> Module:
         """build the module"""
@@ -44,7 +45,10 @@ class ADATReceiver(Elaboratable):
         # counts, how many 0 bits it got in a row
         sync_bit_counter = Signal(4)
 
-        comb += [ nrzidecoder.nrzi_in.eq(self.adat_in) ]
+        comb += [
+            nrzidecoder.nrzi_in.eq(self.adat_in),
+            self.recovered_clock_out.eq(nrzidecoder.recovered_clock_out)
+        ]
 
         with m.FSM():
             # wait for SYNC
