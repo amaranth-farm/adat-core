@@ -1,6 +1,6 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Thu Jan 21 06:54:45 2021
+[*] Fri Apr  9 22:04:26 2021
 [*]
 [dumpfile] "nrzi-decoder-bench-44100.vcd"
 [dumpfile_mtime] "Thu Jan 21 06:54:11 2021"
@@ -9,39 +9,48 @@
 [timestart] 7440000
 [size] 3822 2022
 [pos] -1 -1
-*-22.427368 22720000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.631739 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [sst_width] 453
 [signals_width] 435
 [sst_expanded] 1
-[sst_vpaned_height] 633
+[sst_vpaned_height] 622
 @28
 top.clk
 top.fsm_state
 [color] 3
+top.invalid_frame_in
+[color] 3
 top.nrzi
 [color] 2
 top.nrzi_prev
+@29
+[color] 3
+top.recovered_clock_out
+@28
 top.sync_counter.active_in
 top.got_edge
+@8022
+top.bit_counter[6:0]
+top.dead_counter[7:0]
 @8024
 top.sync_counter.counter_out[6:0]
-@20001
+@20000
 -
-@24
+@8024
 top.sync_counter.divided_counter_out[6:0]
 @28
+top.sync_counter.active_in
 [color] 3
 top.sync_counter.reset_in
 top.sync_counter.rst
-@22
-top.bit_counter[6:0]
-@28
 top.nrzi_prev
 [color] 3
 top.data_out_en
 [color] 2
 top.data_out
+[color] 2
+top.running
 @20000
 -
 @8022
