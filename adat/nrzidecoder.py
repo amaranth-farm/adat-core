@@ -113,14 +113,20 @@ class NRZIDecoder(Elaboratable):
         dead_counter = Signal(8)
         output       = Signal(reset=1)
 
+        # recover ADAT clock
+        with m.If(bit_counter <= (bit_time >> 1)):
+            m.d.comb += self.recovered_clock_out.eq(1)
+        with m.Else():
+            m.d.comb += self.recovered_clock_out.eq(0)
+
         # when the frame decoder got garbage
         # then we need to go back to SYNC state
         with m.If(self.invalid_frame_in):
-            sync += [ 
+            sync += [
                 sync_counter.reset_in.eq(1),
                 bit_counter.eq(0),
                 dead_counter.eq(0)
-                ]
+            ]
             m.next = "SYNC"
 
         sync += bit_counter.eq(bit_counter + 1)
