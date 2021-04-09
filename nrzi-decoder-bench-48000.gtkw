@@ -1,20 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Wed Apr  7 21:18:30 2021
+[*] Fri Apr  9 21:55:43 2021
 [*]
 [dumpfile] "nrzi-decoder-bench-48000.vcd"
-[dumpfile_mtime] "Wed Apr  7 21:10:19 2021"
-[dumpfile_size] 1443978
+[dumpfile_mtime] "Fri Apr  9 21:46:16 2021"
+[dumpfile_size] 1443929
 [savefile] "nrzi-decoder-bench-48000.gtkw"
-[timestart] 0
+[timestart] 83151000
 [size] 3822 2022
-[pos] -1 -1
-*-23.093943 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1921 27
+*-16.931738 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [sst_width] 453
 [signals_width] 435
 [sst_expanded] 1
-[sst_vpaned_height] 633
+[sst_vpaned_height] 622
 @28
 top.clk
 top.fsm_state
@@ -26,6 +26,8 @@ top.nrzi
 top.nrzi_prev
 top.sync_counter.active_in
 top.got_edge
+@8023
+top.bit_counter[6:0]
 @8022
 top.dead_counter[7:0]
 @8024
@@ -34,15 +36,11 @@ top.sync_counter.counter_out[6:0]
 -
 @8024
 top.sync_counter.divided_counter_out[6:0]
-@29
-top.sync_counter.active_in
 @28
+top.sync_counter.active_in
 [color] 3
 top.sync_counter.reset_in
 top.sync_counter.rst
-@8022
-top.bit_counter[6:0]
-@28
 top.nrzi_prev
 [color] 3
 top.data_out_en
