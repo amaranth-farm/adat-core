@@ -55,5 +55,5 @@ class DividingCounter(Elaboratable):
         return m
 
 if __name__ == "__main__":
-    module = DividingCounter()
+    module = DividingCounter(10, 16)
     main(module, name="dividing_counter", ports=module.ports)
