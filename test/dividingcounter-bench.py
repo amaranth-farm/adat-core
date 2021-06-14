@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
+import sys
+sys.path.append('.')
+
 from nmigen.sim import Simulator, Tick
-from dividingcounter import DividingCounter
+
+from adat.dividingcounter import DividingCounter
 
 if __name__ == "__main__":
     dut = DividingCounter(5, 5)

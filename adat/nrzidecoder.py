@@ -7,7 +7,7 @@ from nmigen         import Elaboratable, Signal, Module, ClockDomain
 from nmigen.lib.cdc import FFSynchronizer
 from nmigen.cli     import main
 
-from dividingcounter import DividingCounter
+from adat.dividingcounter import DividingCounter
 
 class NRZIDecoder(Elaboratable):
     """Converts a NRZI encoded ADAT stream into a synchronous stream of bits"""

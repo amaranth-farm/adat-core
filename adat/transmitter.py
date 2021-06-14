@@ -4,19 +4,16 @@
     ADAT output is in the ADAT clock domain
 """
 
-from nmigen          import Elaboratable, Signal, Module, Cat, Const, Array, \
-                            ClockDomain, ClockSignal, ResetSignal
+from nmigen          import Elaboratable, Signal, Module, Cat, Const, Array
 from nmigen.lib.fifo import AsyncFIFO
 from nmigen.cli      import main
 
-from nrziencoder import NRZIEncoder
+from adat.nrziencoder import NRZIEncoder
 
 class ADATTransmitter(Elaboratable):
     """ transmit ADAT from a multiplexed stream of eight audio channels """
 
-    def __init__(self, adat_clk = ClockSignal("adat"), adat_rst = ResetSignal("adat")):
-        self.adat_clk      = adat_clk
-        self.adat_rst      = adat_rst
+    def __init__(self):
         self.adat_out      = Signal()
         self.addr_in       = Signal(3)
         self.sample_in     = Signal(24)
@@ -33,8 +30,6 @@ class ADATTransmitter(Elaboratable):
 
     def elaborate(self, platform) -> Module:
         m = Module()
-        cd_adat = ClockDomain()
-        m.domains.adat = cd_adat
         sync = m.d.sync
         adat = m.d.adat
         comb = m.d.comb
@@ -116,7 +111,5 @@ if __name__ == "__main__":
         t.valid_in,
         t.ready_out,
         t.last_in,
-        t.adat_clk,
-        t.adat_rst,
         t.adat_out,
     ])

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import sys
+sys.path.append('.')
+
 from nmigen.sim import Simulator, Tick
-from edgetopulse import EdgeToPulse
+from adat.edgetopulse import EdgeToPulse
 
 if __name__ == "__main__":
     dut = EdgeToPulse()

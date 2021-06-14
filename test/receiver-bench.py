@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import sys
+sys.path.append(".")
+
 from nmigen.sim import Simulator, Tick
 
-from receiver    import ADATReceiver
-from nrzidecoder import NRZIDecoder
-from testdata    import one_empty_adat_frame, \
+from adat.receiver    import ADATReceiver
+from adat.nrzidecoder import NRZIDecoder
+from testdata         import one_empty_adat_frame, \
                         sixteen_frames_with_channel_num_msb_and_sample_num, \
                         encode_nrzi
 

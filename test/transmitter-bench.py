@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import sys
+sys.path.append('.')
+
 from nmigen.sim import Simulator, Tick
 
-from transmitter import ADATTransmitter
-from nrzidecoder import NRZIDecoder
+from adat.transmitter import ADATTransmitter
+from adat.nrzidecoder import NRZIDecoder
 
 def test_with_samplerate(samplerate: int=48000):
     clk_freq = 100e6

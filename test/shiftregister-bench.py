@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import sys
+sys.path.append('.')
+
 from nmigen.sim import Simulator, Tick
-from shiftregister import InputShiftRegister, OutputShiftRegister
+from adat.shiftregister import InputShiftRegister, OutputShiftRegister
 
 def simulate_input_shiftregister():
     dut = InputShiftRegister(8)

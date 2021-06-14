@@ -10,7 +10,6 @@ def scm_version():
         "local_scheme": local_scheme,
     }
 
-
 setup(
     name="adat",
     use_scm_version=scm_version(),

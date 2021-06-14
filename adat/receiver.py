@@ -3,9 +3,9 @@
 from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
 from nmigen.cli import main
 
-from nrzidecoder     import NRZIDecoder
-from shiftregister   import InputShiftRegister
-from edgetopulse     import EdgeToPulse
+from adat.nrzidecoder     import NRZIDecoder
+from adat.shiftregister   import InputShiftRegister
+from adat.edgetopulse     import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     """
