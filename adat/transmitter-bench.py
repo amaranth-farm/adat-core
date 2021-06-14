@@ -18,7 +18,6 @@ def test_with_samplerate(samplerate: int=48000):
     sim.add_clock(1.0/clk_freq, domain="sync")
     sim.add_clock(1.0/adat_freq, domain="adat")
 
-
     def write(addr: int, sample: int, last: bool = False):
         if last:
             yield dut.last_in.eq(1)
@@ -49,7 +48,6 @@ def test_with_samplerate(samplerate: int=48000):
         for i in range(4):
             yield from write(4 + i, (0xc + i) << 20, i == 3)
         yield from wait(900)
-
 
     sim.add_sync_process(sync_process, domain="sync")
 
