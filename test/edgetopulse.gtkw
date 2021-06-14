@@ -1,0 +1,29 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Fri Dec 25 05:34:45 2020
+[*]
+[dumpfile] "edgetopulse.vcd"
+[dumpfile_mtime] "Fri Dec 25 05:32:39 2020"
+[dumpfile_size] 1225
+[savefile] "edgetopulse.gtkw"
+[timestart] 0
+[size] 3822 2017
+[pos] -1 -1
+*-22.100000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 444
+[signals_width] 270
+[sst_expanded] 1
+[sst_vpaned_height] 654
+@28
+top.reset_in
+top.clk
+@29
+[color] 3
+top.edge_last
+@28
+[color] 3
+top.edge_in
+[color] 1
+top.pulse_out
+[pattern_trace] 1
+[pattern_trace] 0

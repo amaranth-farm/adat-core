@@ -1,0 +1,62 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Sat Jan 23 02:47:43 2021
+[*]
+[dumpfile] "receiver-smoke-test-48000.vcd"
+[dumpfile_mtime] "Sat Jan 23 02:45:03 2021"
+[dumpfile_size] 1612141
+[savefile] "receiver-smoke-test-48000.gtkw"
+[timestart] 0
+[size] 3822 2022
+[pos] -1 -1
+*-22.114462 345670000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[sst_width] 427
+[signals_width] 315
+[sst_expanded] 1
+[sst_vpaned_height] 632
+@28
+top.clk
+top.adat_in
+@200
+-NRZI Decoder
+@28
+[color] 3
+top.nrzi_decoder.data_out
+[color] 3
+top.nrzi_decoder.data_out_en
+@200
+-State Machine
+@28
+[color] 2
+top.fsm_state
+@24
+top.bit_counter[7:0]
+top.nibble_counter[2:0]
+@200
+-Frame Shifter
+@28
+[color] 3
+top.framedata_shifter.bit_in
+[color] 3
+top.framedata_shifter.enable_in
+@22
+top.framedata_shifter.value_out[23:0]
+@200
+-Output
+@24
+top.output_at[7:0]
+@22
+top.user_data_out[3:0]
+@28
+[color] 2
+top.output_enable
+@24
+[color] 2
+top.addr_out[2:0]
+@22
+[color] 2
+top.sample_out[23:0]
+top.user_data_out[3:0]
+[pattern_trace] 1
+[pattern_trace] 0
