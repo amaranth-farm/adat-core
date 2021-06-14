@@ -14,9 +14,9 @@ from nrziencoder import NRZIEncoder
 class ADATTransmitter(Elaboratable):
     """ transmit ADAT from a multiplexed stream of eight audio channels """
 
-    def __init__(self):
-        self.adat_clk      = ClockSignal("adat")
-        self.adat_rst      = ResetSignal("adat")
+    def __init__(self, adat_clk = ClockSignal("adat"), adat_rst = ResetSignal("adat")):
+        self.adat_clk      = adat_clk
+        self.adat_rst      = adat_rst
         self.adat_out      = Signal()
         self.addr_in       = Signal(3)
         self.sample_in     = Signal(24)
