@@ -2,7 +2,6 @@
 """Encode a stream of bits to NRZI"""
 
 from nmigen         import Elaboratable, Signal, Module, Mux
-from nmigen.cli     import main
 
 class NRZIEncoder(Elaboratable):
     """Converts a synchronous stream of bits into a NRZI encoded ADAT stream"""
@@ -21,8 +20,3 @@ class NRZIEncoder(Elaboratable):
                             self.nrzi_out)),
 
         return m
-
-
-if __name__ == "__main__":
-    module = NRZIEncoder()
-    main(module, name="nrzi_encoder", ports=[module.data_in, module.nrzi_out])

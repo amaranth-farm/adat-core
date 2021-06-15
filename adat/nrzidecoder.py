@@ -5,7 +5,6 @@ import math
 
 from nmigen         import Elaboratable, Signal, Module, ClockDomain
 from nmigen.lib.cdc import FFSynchronizer
-from nmigen.cli     import main
 
 from adat.dividingcounter import DividingCounter
 
@@ -161,7 +160,3 @@ class NRZIDecoder(Elaboratable):
         with m.If(dead_counter >= bit_time << 4):
             sync += dead_counter.eq(0)
             m.next = "SYNC"
-
-if __name__ == "__main__":
-    module = NRZIDecoder(100e6)
-    main(module, name="nrzi_decoder", ports=[module.nrzi_in, module.data_out])

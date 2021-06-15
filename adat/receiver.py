@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ADAT receiver core"""
 from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
-from nmigen.cli import main
 
 from adat.nrzidecoder     import NRZIDecoder
 from adat.shiftregister   import InputShiftRegister
@@ -177,10 +176,3 @@ class ADATReceiver(Elaboratable):
                     m.next = "WAIT_SYNC"
 
         return m
-
-if __name__ == "__main__":
-    r = ADATReceiver(100e6)
-    main(r, name="adat_receiver", ports=[
-        r.clk, r.reset_in,
-        r.adat_in, r.addr_out,
-        r.sample_out, r.output_enable, r.user_data_out])

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """converts a rising edge to a single clock pulse"""
 from nmigen     import Elaboratable, Signal, Module
-from nmigen.cli import main
 
 class EdgeToPulse(Elaboratable):
     """
@@ -24,7 +23,3 @@ class EdgeToPulse(Elaboratable):
             m.d.comb += self.pulse_out.eq(0)
 
         return m
-
-if __name__ == "__main__":
-    m = EdgeToPulse()
-    main(m, name="edge_to_pulse", ports=[m.edge_in, m.pulse_out])

@@ -4,7 +4,6 @@
                                 clock cycle
 """
 from nmigen import Elaboratable, Signal, Module, Cat
-from nmigen.cli import main_parser, main_runner
 
 # pylint: disable=too-few-public-methods
 class InputShiftRegister(Elaboratable):
@@ -49,18 +48,3 @@ class OutputShiftRegister(Elaboratable):
             m.d.sync += value.eq(Cat(value[1:], value[0])) if self.rotate else value.eq((value >> 1))
 
         return m
-
-
-if __name__ == "__main__":
-    parser = main_parser()
-    parser.add_argument("-d", "--depth", dest="depth",
-        metavar="DEPTH", type=int, default=8,
-        help="set depth of shiftregister to DEPTH  (default: %(default)s)")
-    args = parser.parse_args()
-    reg_depth = args.depth
-    module = InputShiftRegister(reg_depth)
-    main_runner(parser, args, module, name="InputShiftRegister",
-                ports=[module.enable_in, module.bit_in, module.value_out])
-    module = OutputShiftRegister(reg_depth)
-    main_runner(parser, args, module, name="OutputShiftRegister",
-                ports=[module.enable_in, module.we_in, module.bit_out, module.value_in])

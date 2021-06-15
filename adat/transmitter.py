@@ -6,7 +6,6 @@
 
 from nmigen          import Elaboratable, Signal, Module, Cat, Const, Array
 from nmigen.lib.fifo import AsyncFIFO
-from nmigen.cli      import main
 
 from adat.nrziencoder import NRZIEncoder
 
@@ -101,15 +100,3 @@ class ADATTransmitter(Elaboratable):
             adat += transmit_fifo.r_en.eq(0)
 
         return m
-
-if __name__ == "__main__":
-    t = ADATTransmitter()
-    main(t, name="adat_transmitter", ports=[
-        t.addr_in,
-        t.sample_in,
-        t.user_data_in,
-        t.valid_in,
-        t.ready_out,
-        t.last_in,
-        t.adat_out,
-    ])

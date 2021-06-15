@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+from nmigen.hdl.cd import ClockDomain
 sys.path.append('.')
 from nmigen.sim import Simulator, Tick
 
