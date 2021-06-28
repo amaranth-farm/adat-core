@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#
+# Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
 """ADAT receiver core"""
 from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
 

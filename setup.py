@@ -16,7 +16,7 @@ setup(
     author="Hans Baier",
     author_email="hansfbaier@gmail.com",
     description="ADAT transmitter and receiver FPGA cores implemented in nmigen",
-    license="BSD",
+    license="CERN-OHL-W-2.0",
     setup_requires=["wheel", "setuptools", "setuptools_scm"],
     install_requires=[
         "nmigen>=0.2,<0.4",

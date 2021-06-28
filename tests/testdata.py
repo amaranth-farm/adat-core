@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
 """generate ADAT signals for simulation"""
 
 from functools import reduce

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#
+# Copyright (c) 2021 Hans Baier <hansfbaier@gmail.com>
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
 """
     synchronous shift register: bits appear in the output at the next
                                 clock cycle
