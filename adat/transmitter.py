@@ -24,6 +24,7 @@ class ADATTransmitter(Elaboratable):
         self.valid_in      = Signal()
         self.ready_out     = Signal()
         self.last_in       = Signal()
+        self.underflow_out = Signal()
 
     @staticmethod
     def chunks(lst: list, n: int):
@@ -95,12 +96,16 @@ class ADATTransmitter(Elaboratable):
         comb += nrzi_encoder.data_in.eq(transmitted_frame_bits[transmit_counter]),
         adat += transmit_counter.eq(transmit_counter + 1)
 
-        with m.If((transmit_counter == 255) & transmit_fifo.r_rdy):
-            adat += [
-                transmit_fifo.r_en.eq(1),
-                transmitted_frame.eq(transmit_fifo.r_data)
-            ]
-        with m.Else():
-            adat += transmit_fifo.r_en.eq(0)
+        adat += transmit_fifo.r_en.eq(0)
+        sync += self.underflow_out.eq(0)
+
+        with m.If(transmit_counter == 255):
+            with m.If(transmit_fifo.r_rdy):
+                adat += [
+                    transmit_fifo.r_en.eq(1),
+                    transmitted_frame.eq(transmit_fifo.r_data),
+                ]
+            with m.Else():
+                sync += self.underflow_out.eq(1)
 
         return m
