@@ -14,17 +14,54 @@ from nmigen.lib.fifo import AsyncFIFO
 from adat.nrziencoder import NRZIEncoder
 
 class ADATTransmitter(Elaboratable):
-    """ transmit ADAT from a multiplexed stream of eight audio channels """
+    """transmit ADAT from a multiplexed stream of eight audio channels
 
-    def __init__(self):
-        self.adat_out      = Signal()
-        self.addr_in       = Signal(3)
-        self.sample_in     = Signal(24)
-        self.user_data_in  = Signal(4)
-        self.valid_in      = Signal()
-        self.ready_out     = Signal()
-        self.last_in       = Signal()
-        self.underflow_out = Signal()
+    Parameters
+    ----------
+    fifo_depth: capacity of the FIFO containing the ADAT frames to be transmitted
+
+    Attributes
+    ----------
+    adat_out: Signal
+        the ADAT signal to be transmitted by the optical transmitter
+    addr_in: Signal
+        contains the ADAT channel number (0-7) of the current sample to be written
+        into the currently assembled ADAT frame
+    sample_in: Signal
+        the 24 bit sample to be written into the channel slot given by addr_in
+        in the currently assembled ADAT frame
+    user_data_in: Signal
+        the user data bits of the currently assembled frame. Will be committed,
+        when ``last_in`` is strobed high
+    valid_in: Signal
+        commits the data at sample_in into the currently assembled frame,
+        but only if ``ready_out`` is high
+    ready_out: Signal
+        outputs if there is space left in the transmit FIFO. It also will
+        prevent any samples to be committed into the currently assembled ADAT frame
+    last_in: Signal
+        needs to be strobed when the last sample has been committed into the currently
+        assembled ADAT frame. This will commit the entire frame (including ``user_bits``)
+        into the transmit FIFO.
+    fifo_level_out: Signal
+        outputs the number of entries in the transmit FIFO
+    underflow_out: Signal
+        this underflow indicator will be strobed, when a new ADAT frame needs to be
+        transmitted but the transmit FIFO is empty. In this case, the last
+        ADAT frame will be transmitted again.
+    """
+
+    def __init__(self, fifo_depth=4):
+        self._fifo_depth    = fifo_depth
+        self.adat_out       = Signal()
+        self.addr_in        = Signal(3)
+        self.sample_in      = Signal(24)
+        self.user_data_in   = Signal(4)
+        self.valid_in       = Signal()
+        self.ready_out      = Signal()
+        self.last_in        = Signal()
+        self.fifo_level_out = Signal(range(fifo_depth))
+        self.underflow_out  = Signal()
 
     @staticmethod
     def chunks(lst: list, n: int):
@@ -52,12 +89,18 @@ class ADATTransmitter(Elaboratable):
         audio_nibbles   = list(self.chunks(audio_bits, 4))
         comb += assembled_frame.eq(Cat(zip(filler_bits, [sync_pad, user_bits] + audio_nibbles)))
 
-        transmit_fifo = AsyncFIFO(width=256, depth=4, w_domain="sync", r_domain="adat")
+        transmit_fifo = AsyncFIFO(width=256, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
         m.submodules.transmit_fifo = transmit_fifo
 
-        comb += self.ready_out.eq(transmit_fifo.w_rdy)
+        comb += [
+            self.ready_out.eq(transmit_fifo.w_rdy),
+            self.fifo_level_out.eq(transmit_fifo.w_level),
+        ]
 
         frame_complete = Signal()
+        # make sure, w_en is only asserted when explicitly strobed
+        sync += transmit_fifo.w_en.eq(0)
+
         with m.If(self.valid_in & self.ready_out):
             sync += audio_channels[self.addr_in].eq(self.sample_in)
 
@@ -79,10 +122,6 @@ class ADATTransmitter(Elaboratable):
                 frame_complete.eq(0)
             ]
 
-        with m.Else():
-            # make sure, w_en is only asserted for one cycle
-            sync += transmit_fifo.w_en.eq(0)
-
         transmitted_frame_bits = Array([Signal(name=f"frame_bit{b}") for b in range(256)])
         transmitted_frame = Cat(transmitted_frame_bits)
 
@@ -97,7 +136,7 @@ class ADATTransmitter(Elaboratable):
         adat += transmit_counter.eq(transmit_counter + 1)
 
         adat += transmit_fifo.r_en.eq(0)
-        sync += self.underflow_out.eq(0)
+        comb += self.underflow_out.eq(0)
 
         with m.If(transmit_counter == 255):
             with m.If(transmit_fifo.r_rdy):
@@ -106,6 +145,6 @@ class ADATTransmitter(Elaboratable):
                     transmitted_frame.eq(transmit_fifo.r_data),
                 ]
             with m.Else():
-                sync += self.underflow_out.eq(1)
+                comb += self.underflow_out.eq(1)
 
         return m
