@@ -1,25 +1,25 @@
 [*]
 [*] GTKWave Analyzer v3.3.109 (w)1999-2020 BSI
-[*] Mon Aug  9 23:26:31 2021
+[*] Thu Aug 12 01:39:59 2021
 [*]
 [dumpfile] "transmitter-smoke-test-48000.vcd"
-[dumpfile_mtime] "Mon Aug  9 23:25:10 2021"
-[dumpfile_size] 281954
+[dumpfile_mtime] "Thu Aug 12 01:36:18 2021"
+[dumpfile_size] 395232
 [savefile] "transmitter-smoke-test-48000.gtkw"
-[timestart] 19811000
+[timestart] 0
 [size] 3828 2090
-[pos] -1921 27
-*-18.723024 3214500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-23.969213 24032700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
-[sst_width] 427
-[signals_width] 360
+[sst_width] 357
+[signals_width] 635
 [sst_expanded] 1
-[sst_vpaned_height] 626
+[sst_vpaned_height] 619
 @28
 top.clk
 @200
 -Input Stream
-@28
+@24
 top.addr_in[2:0]
 @22
 top.sample_in[23:0]
@@ -30,6 +30,9 @@ top.ready_out
 top.valid_in
 @200
 -Frame assembly
+@28
+[color] 7
+top.frame_complete
 @22
 [color] 7
 top.channel0[23:0]
@@ -59,8 +62,525 @@ top.w_rdy
 [color] 3
 top.w_en
 @22
+top.w_level[2:0]
+@c00023
 [color] 3
 top.w_data[255:0]
+@29
+[color] 3
+(0)top.w_data[255:0]
+[color] 3
+(1)top.w_data[255:0]
+[color] 3
+(2)top.w_data[255:0]
+[color] 3
+(3)top.w_data[255:0]
+[color] 3
+(4)top.w_data[255:0]
+[color] 3
+(5)top.w_data[255:0]
+[color] 3
+(6)top.w_data[255:0]
+[color] 3
+(7)top.w_data[255:0]
+[color] 3
+(8)top.w_data[255:0]
+[color] 3
+(9)top.w_data[255:0]
+[color] 3
+(10)top.w_data[255:0]
+[color] 3
+(11)top.w_data[255:0]
+[color] 3
+(12)top.w_data[255:0]
+[color] 3
+(13)top.w_data[255:0]
+[color] 3
+(14)top.w_data[255:0]
+[color] 3
+(15)top.w_data[255:0]
+[color] 3
+(16)top.w_data[255:0]
+[color] 3
+(17)top.w_data[255:0]
+[color] 3
+(18)top.w_data[255:0]
+[color] 3
+(19)top.w_data[255:0]
+[color] 3
+(20)top.w_data[255:0]
+[color] 3
+(21)top.w_data[255:0]
+[color] 3
+(22)top.w_data[255:0]
+[color] 3
+(23)top.w_data[255:0]
+[color] 3
+(24)top.w_data[255:0]
+[color] 3
+(25)top.w_data[255:0]
+[color] 3
+(26)top.w_data[255:0]
+[color] 3
+(27)top.w_data[255:0]
+[color] 3
+(28)top.w_data[255:0]
+[color] 3
+(29)top.w_data[255:0]
+[color] 3
+(30)top.w_data[255:0]
+[color] 3
+(31)top.w_data[255:0]
+[color] 3
+(32)top.w_data[255:0]
+[color] 3
+(33)top.w_data[255:0]
+[color] 3
+(34)top.w_data[255:0]
+[color] 3
+(35)top.w_data[255:0]
+[color] 3
+(36)top.w_data[255:0]
+[color] 3
+(37)top.w_data[255:0]
+[color] 3
+(38)top.w_data[255:0]
+[color] 3
+(39)top.w_data[255:0]
+[color] 3
+(40)top.w_data[255:0]
+[color] 3
+(41)top.w_data[255:0]
+[color] 3
+(42)top.w_data[255:0]
+[color] 3
+(43)top.w_data[255:0]
+[color] 3
+(44)top.w_data[255:0]
+[color] 3
+(45)top.w_data[255:0]
+[color] 3
+(46)top.w_data[255:0]
+[color] 3
+(47)top.w_data[255:0]
+[color] 3
+(48)top.w_data[255:0]
+[color] 3
+(49)top.w_data[255:0]
+[color] 3
+(50)top.w_data[255:0]
+[color] 3
+(51)top.w_data[255:0]
+[color] 3
+(52)top.w_data[255:0]
+[color] 3
+(53)top.w_data[255:0]
+[color] 3
+(54)top.w_data[255:0]
+[color] 3
+(55)top.w_data[255:0]
+[color] 3
+(56)top.w_data[255:0]
+[color] 3
+(57)top.w_data[255:0]
+[color] 3
+(58)top.w_data[255:0]
+[color] 3
+(59)top.w_data[255:0]
+[color] 3
+(60)top.w_data[255:0]
+[color] 3
+(61)top.w_data[255:0]
+[color] 3
+(62)top.w_data[255:0]
+[color] 3
+(63)top.w_data[255:0]
+[color] 3
+(64)top.w_data[255:0]
+[color] 3
+(65)top.w_data[255:0]
+[color] 3
+(66)top.w_data[255:0]
+[color] 3
+(67)top.w_data[255:0]
+[color] 3
+(68)top.w_data[255:0]
+[color] 3
+(69)top.w_data[255:0]
+[color] 3
+(70)top.w_data[255:0]
+[color] 3
+(71)top.w_data[255:0]
+[color] 3
+(72)top.w_data[255:0]
+[color] 3
+(73)top.w_data[255:0]
+[color] 3
+(74)top.w_data[255:0]
+[color] 3
+(75)top.w_data[255:0]
+[color] 3
+(76)top.w_data[255:0]
+[color] 3
+(77)top.w_data[255:0]
+[color] 3
+(78)top.w_data[255:0]
+[color] 3
+(79)top.w_data[255:0]
+[color] 3
+(80)top.w_data[255:0]
+[color] 3
+(81)top.w_data[255:0]
+[color] 3
+(82)top.w_data[255:0]
+[color] 3
+(83)top.w_data[255:0]
+[color] 3
+(84)top.w_data[255:0]
+[color] 3
+(85)top.w_data[255:0]
+[color] 3
+(86)top.w_data[255:0]
+[color] 3
+(87)top.w_data[255:0]
+[color] 3
+(88)top.w_data[255:0]
+[color] 3
+(89)top.w_data[255:0]
+[color] 3
+(90)top.w_data[255:0]
+[color] 3
+(91)top.w_data[255:0]
+[color] 3
+(92)top.w_data[255:0]
+[color] 3
+(93)top.w_data[255:0]
+[color] 3
+(94)top.w_data[255:0]
+[color] 3
+(95)top.w_data[255:0]
+[color] 3
+(96)top.w_data[255:0]
+[color] 3
+(97)top.w_data[255:0]
+[color] 3
+(98)top.w_data[255:0]
+[color] 3
+(99)top.w_data[255:0]
+[color] 3
+(100)top.w_data[255:0]
+[color] 3
+(101)top.w_data[255:0]
+[color] 3
+(102)top.w_data[255:0]
+[color] 3
+(103)top.w_data[255:0]
+[color] 3
+(104)top.w_data[255:0]
+[color] 3
+(105)top.w_data[255:0]
+[color] 3
+(106)top.w_data[255:0]
+[color] 3
+(107)top.w_data[255:0]
+[color] 3
+(108)top.w_data[255:0]
+[color] 3
+(109)top.w_data[255:0]
+[color] 3
+(110)top.w_data[255:0]
+[color] 3
+(111)top.w_data[255:0]
+[color] 3
+(112)top.w_data[255:0]
+[color] 3
+(113)top.w_data[255:0]
+[color] 3
+(114)top.w_data[255:0]
+[color] 3
+(115)top.w_data[255:0]
+[color] 3
+(116)top.w_data[255:0]
+[color] 3
+(117)top.w_data[255:0]
+[color] 3
+(118)top.w_data[255:0]
+[color] 3
+(119)top.w_data[255:0]
+[color] 3
+(120)top.w_data[255:0]
+[color] 3
+(121)top.w_data[255:0]
+[color] 3
+(122)top.w_data[255:0]
+[color] 3
+(123)top.w_data[255:0]
+[color] 3
+(124)top.w_data[255:0]
+[color] 3
+(125)top.w_data[255:0]
+[color] 3
+(126)top.w_data[255:0]
+[color] 3
+(127)top.w_data[255:0]
+[color] 3
+(128)top.w_data[255:0]
+[color] 3
+(129)top.w_data[255:0]
+[color] 3
+(130)top.w_data[255:0]
+[color] 3
+(131)top.w_data[255:0]
+[color] 3
+(132)top.w_data[255:0]
+[color] 3
+(133)top.w_data[255:0]
+[color] 3
+(134)top.w_data[255:0]
+[color] 3
+(135)top.w_data[255:0]
+[color] 3
+(136)top.w_data[255:0]
+[color] 3
+(137)top.w_data[255:0]
+[color] 3
+(138)top.w_data[255:0]
+[color] 3
+(139)top.w_data[255:0]
+[color] 3
+(140)top.w_data[255:0]
+[color] 3
+(141)top.w_data[255:0]
+[color] 3
+(142)top.w_data[255:0]
+[color] 3
+(143)top.w_data[255:0]
+[color] 3
+(144)top.w_data[255:0]
+[color] 3
+(145)top.w_data[255:0]
+[color] 3
+(146)top.w_data[255:0]
+[color] 3
+(147)top.w_data[255:0]
+[color] 3
+(148)top.w_data[255:0]
+[color] 3
+(149)top.w_data[255:0]
+[color] 3
+(150)top.w_data[255:0]
+[color] 3
+(151)top.w_data[255:0]
+[color] 3
+(152)top.w_data[255:0]
+[color] 3
+(153)top.w_data[255:0]
+[color] 3
+(154)top.w_data[255:0]
+[color] 3
+(155)top.w_data[255:0]
+[color] 3
+(156)top.w_data[255:0]
+[color] 3
+(157)top.w_data[255:0]
+[color] 3
+(158)top.w_data[255:0]
+[color] 3
+(159)top.w_data[255:0]
+[color] 3
+(160)top.w_data[255:0]
+[color] 3
+(161)top.w_data[255:0]
+[color] 3
+(162)top.w_data[255:0]
+[color] 3
+(163)top.w_data[255:0]
+[color] 3
+(164)top.w_data[255:0]
+[color] 3
+(165)top.w_data[255:0]
+[color] 3
+(166)top.w_data[255:0]
+[color] 3
+(167)top.w_data[255:0]
+[color] 3
+(168)top.w_data[255:0]
+[color] 3
+(169)top.w_data[255:0]
+[color] 3
+(170)top.w_data[255:0]
+[color] 3
+(171)top.w_data[255:0]
+[color] 3
+(172)top.w_data[255:0]
+[color] 3
+(173)top.w_data[255:0]
+[color] 3
+(174)top.w_data[255:0]
+[color] 3
+(175)top.w_data[255:0]
+[color] 3
+(176)top.w_data[255:0]
+[color] 3
+(177)top.w_data[255:0]
+[color] 3
+(178)top.w_data[255:0]
+[color] 3
+(179)top.w_data[255:0]
+[color] 3
+(180)top.w_data[255:0]
+[color] 3
+(181)top.w_data[255:0]
+[color] 3
+(182)top.w_data[255:0]
+[color] 3
+(183)top.w_data[255:0]
+[color] 3
+(184)top.w_data[255:0]
+[color] 3
+(185)top.w_data[255:0]
+[color] 3
+(186)top.w_data[255:0]
+[color] 3
+(187)top.w_data[255:0]
+[color] 3
+(188)top.w_data[255:0]
+[color] 3
+(189)top.w_data[255:0]
+[color] 3
+(190)top.w_data[255:0]
+[color] 3
+(191)top.w_data[255:0]
+[color] 3
+(192)top.w_data[255:0]
+[color] 3
+(193)top.w_data[255:0]
+[color] 3
+(194)top.w_data[255:0]
+[color] 3
+(195)top.w_data[255:0]
+[color] 3
+(196)top.w_data[255:0]
+[color] 3
+(197)top.w_data[255:0]
+[color] 3
+(198)top.w_data[255:0]
+[color] 3
+(199)top.w_data[255:0]
+[color] 3
+(200)top.w_data[255:0]
+[color] 3
+(201)top.w_data[255:0]
+[color] 3
+(202)top.w_data[255:0]
+[color] 3
+(203)top.w_data[255:0]
+[color] 3
+(204)top.w_data[255:0]
+[color] 3
+(205)top.w_data[255:0]
+[color] 3
+(206)top.w_data[255:0]
+[color] 3
+(207)top.w_data[255:0]
+[color] 3
+(208)top.w_data[255:0]
+[color] 3
+(209)top.w_data[255:0]
+[color] 3
+(210)top.w_data[255:0]
+[color] 3
+(211)top.w_data[255:0]
+[color] 3
+(212)top.w_data[255:0]
+[color] 3
+(213)top.w_data[255:0]
+[color] 3
+(214)top.w_data[255:0]
+[color] 3
+(215)top.w_data[255:0]
+[color] 3
+(216)top.w_data[255:0]
+[color] 3
+(217)top.w_data[255:0]
+[color] 3
+(218)top.w_data[255:0]
+[color] 3
+(219)top.w_data[255:0]
+[color] 3
+(220)top.w_data[255:0]
+[color] 3
+(221)top.w_data[255:0]
+[color] 3
+(222)top.w_data[255:0]
+[color] 3
+(223)top.w_data[255:0]
+[color] 3
+(224)top.w_data[255:0]
+[color] 3
+(225)top.w_data[255:0]
+[color] 3
+(226)top.w_data[255:0]
+[color] 3
+(227)top.w_data[255:0]
+[color] 3
+(228)top.w_data[255:0]
+[color] 3
+(229)top.w_data[255:0]
+[color] 3
+(230)top.w_data[255:0]
+[color] 3
+(231)top.w_data[255:0]
+[color] 3
+(232)top.w_data[255:0]
+[color] 3
+(233)top.w_data[255:0]
+[color] 3
+(234)top.w_data[255:0]
+[color] 3
+(235)top.w_data[255:0]
+[color] 3
+(236)top.w_data[255:0]
+[color] 3
+(237)top.w_data[255:0]
+[color] 3
+(238)top.w_data[255:0]
+[color] 3
+(239)top.w_data[255:0]
+[color] 3
+(240)top.w_data[255:0]
+[color] 3
+(241)top.w_data[255:0]
+[color] 3
+(242)top.w_data[255:0]
+[color] 3
+(243)top.w_data[255:0]
+[color] 3
+(244)top.w_data[255:0]
+[color] 3
+(245)top.w_data[255:0]
+[color] 3
+(246)top.w_data[255:0]
+[color] 3
+(247)top.w_data[255:0]
+[color] 3
+(248)top.w_data[255:0]
+[color] 3
+(249)top.w_data[255:0]
+[color] 3
+(250)top.w_data[255:0]
+[color] 3
+(251)top.w_data[255:0]
+[color] 3
+(252)top.w_data[255:0]
+[color] 3
+(253)top.w_data[255:0]
+[color] 3
+(254)top.w_data[255:0]
+[color] 3
+(255)top.w_data[255:0]
+@1401201
+-group_end
 @28
 [color] 3
 top.adat_clk
@@ -69,11 +589,12 @@ top.adat_clk
 @22
 [color] 2
 top.transmit_counter[7:0]
-@29
-[color] 2
-top.nrzi_encoder.data_in
 @28
 [color] 2
+top.nrzi_encoder.data_in
+[color] 2
 top.adat_out
+[color] 2
+top.underflow_out
 [pattern_trace] 1
 [pattern_trace] 0

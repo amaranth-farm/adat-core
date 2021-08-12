@@ -80,5 +80,56 @@ def encode_nrzi(bits_in: list, initial_bit: int = 1) -> list:
         result.append(last_bit if bit == 0 else (~last_bit) & 1)
     return result
 
+def decode_nrzi(signal):
+    """NRZI-decode a list of bits"""
+    result = []
+    last_bit = 0
+    for bit in signal:
+        result.append(1 if last_bit != bit else 0)
+        last_bit = bit
+    return result
+
+def bits_to_int(bitlist):
+    """convert a list of bits to integer, msb first"""
+    out = 0
+    for bit in bitlist:
+        out = (out << 1) | bit
+    return out
+
+def adat_decode(signal):
+    """decode adat frames, after NRZI-decoding"""
+    result = []
+    def decode_nibble(signal):
+        nibble = signal[:4]
+        return bits_to_int(nibble)
+
+    while len(signal) >= 255:
+        current_frame = []
+        for _ in range(10):
+            assert signal.pop(0) == 0
+
+        assert signal.pop(0) == 1
+
+        user_data = decode_nibble(signal)
+        signal = signal[4:]
+        print("user data: " + hex(user_data))
+
+        current_frame.append(user_data)
+        for channel in range(8):
+            print("channel " + str(channel))
+            sample = 0
+            for nibble_no in range(6):
+                assert signal.pop(0) == 1
+                nibble = decode_nibble(signal)
+                signal = signal[4:]
+                print("nibble: " + bin(nibble), end=" ")
+                sample += nibble << (4 * (5 - nibble_no))
+            print("got sample " + hex(sample))
+            current_frame.append(sample)
+        result.append(current_frame)
+        assert signal.pop(0) == 1
+
+    return result
+
 if __name__ == "__main__":
     print(list(sixteen_frames_with_channel_num_msb_and_sample_num()))

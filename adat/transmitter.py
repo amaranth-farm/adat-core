@@ -87,7 +87,7 @@ class ADATTransmitter(Elaboratable):
         assembled_frame = Signal(256)
         audio_bits      = Cat(audio_channels[::-1])[::-1]
         audio_nibbles   = list(self.chunks(audio_bits, 4))
-        comb += assembled_frame.eq(Cat(zip(filler_bits, [sync_pad, user_bits] + audio_nibbles)))
+        comb += assembled_frame.eq(Cat(zip(filler_bits, [sync_pad, reversed(user_bits)] + audio_nibbles)))
 
         transmit_fifo = AsyncFIFO(width=256, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
         m.submodules.transmit_fifo = transmit_fifo
@@ -111,10 +111,12 @@ class ADATTransmitter(Elaboratable):
                     # word transmitted can make it into assembled_frame
                     frame_complete.eq(1),
                     # user bits will be committed on the last frame
-                    user_bits.eq(self.user_data_in)
+                    user_bits.eq(self.user_data_in),
                 ]
 
-        with m.Elif(frame_complete):
+        with m.If(frame_complete):
+            # we can't process input on this cycle
+            comb += self.ready_out.eq(0)
             sync += [
                 # frame complete, queue it into the FIFO
                 transmit_fifo.w_data.eq(assembled_frame),
