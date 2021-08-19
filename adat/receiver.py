@@ -6,9 +6,9 @@
 """ADAT receiver core"""
 from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
 
-from adat.nrzidecoder     import NRZIDecoder
-from adat.shiftregister   import InputShiftRegister
-from adat.edgetopulse     import EdgeToPulse
+from adat.nrzidecoder                   import NRZIDecoder
+from nmigen_library.utils.shiftregister import InputShiftRegister
+from nmigen_library.utils.shiftregister import EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     """
