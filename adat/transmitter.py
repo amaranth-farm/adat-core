@@ -11,7 +11,7 @@
 from nmigen          import Elaboratable, Signal, Module, Cat, Const, Array
 from nmigen.lib.fifo import AsyncFIFO
 
-from adat.nrziencoder import NRZIEncoder
+from nmigen_library.utils import NRZIEncoder
 
 class ADATTransmitter(Elaboratable):
     """transmit ADAT from a multiplexed stream of eight audio channels

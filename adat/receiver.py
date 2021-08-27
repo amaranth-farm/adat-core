@@ -7,8 +7,7 @@
 from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
 
 from adat.nrzidecoder                   import NRZIDecoder
-from nmigen_library.utils.shiftregister import InputShiftRegister
-from nmigen_library.utils.shiftregister import EdgeToPulse
+from nmigen_library.utils               import InputShiftRegister, EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     """
