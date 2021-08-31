@@ -7,7 +7,7 @@
 
 import math
 
-from nmigen         import Elaboratable, Signal, Module, ClockDomain
+from nmigen         import Elaboratable, Signal, Module
 from nmigen.lib.cdc import FFSynchronizer
 
 from nmigen_library.utils.dividingcounter import DividingCounter
@@ -24,15 +24,6 @@ class NRZIDecoder(Elaboratable):
         self.clk_freq            = clk_freq
 
     @staticmethod
-    def setup_clockdomains(m):
-        """creates default and ADAT clock domains"""
-        cd_adat = ClockDomain(reset_less=True)
-        cd_sync = ClockDomain()
-
-        m.domains.adat = cd_adat
-        m.domains.sync = cd_sync
-
-    @staticmethod
     def adat_freq(samplerate: int = 48000) -> int:
         """calculate the ADAT bit rate for the given samplerate"""
         return samplerate * ((24 + 6) * 8 + 1 + 10 + 1 + 4)
@@ -40,7 +31,7 @@ class NRZIDecoder(Elaboratable):
     def elaborate(self, platform) -> Module:
         """assemble the module"""
         m = Module()
-        self.setup_clockdomains(m)
+
         comb = m.d.comb
         sync = m.d.sync
 
