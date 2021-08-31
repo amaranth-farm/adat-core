@@ -14,7 +14,6 @@ class ADATReceiver(Elaboratable):
         implements the ADAT protocol
     """
     def __init__(self, clk_freq):
-        self.clk                 = ClockSignal()
         self.adat_in             = Signal()
         self.addr_out            = Signal(3)
         self.sample_out          = Signal(24)
