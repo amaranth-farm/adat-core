@@ -15,7 +15,6 @@ class ADATReceiver(Elaboratable):
     """
     def __init__(self, clk_freq):
         self.clk                 = ClockSignal()
-        self.reset_in            = Signal()
         self.adat_in             = Signal()
         self.addr_out            = Signal(3)
         self.sample_out          = Signal(24)
