@@ -14,12 +14,16 @@ class ADATReceiver(Elaboratable):
         implements the ADAT protocol
     """
     def __init__(self, clk_freq):
+        # I/O
         self.adat_in             = Signal()
         self.addr_out            = Signal(3)
         self.sample_out          = Signal(24)
         self.output_enable       = Signal()
         self.user_data_out       = Signal(4)
         self.recovered_clock_out = Signal()
+        self.synced_out          = Signal()
+
+        # Parameters
         self.clk_freq            = clk_freq
 
     def elaborate(self, platform) -> Module:
@@ -47,7 +51,8 @@ class ADATReceiver(Elaboratable):
 
         comb += [
             nrzidecoder.nrzi_in.eq(self.adat_in),
-            self.recovered_clock_out.eq(nrzidecoder.recovered_clock_out)
+            self.synced_out.eq(nrzidecoder.running),
+            self.recovered_clock_out.eq(nrzidecoder.recovered_clock_out),
         ]
 
         with m.FSM():
