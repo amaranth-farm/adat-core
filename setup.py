@@ -22,7 +22,7 @@ setup(
         "nmigen>=0.2,<0.4",
         "importlib_metadata; python_version<'3.8'",
     ],
-    dependency_links=["git+https://github.com/hansfbaier/nmigen-library.git"],
+    dependency_links=["git+https://github.com/hansfbaier/amaranth-library.git"],
     packages=find_packages(),
     project_urls={
         "Source Code": "https://github.com/hansfbaier/adat-core",

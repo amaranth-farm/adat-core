@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
 """ADAT receiver core"""
-from nmigen     import Elaboratable, Signal, Module, ClockSignal, Mux
+from amaranth     import Elaboratable, Signal, Module, ClockSignal, Mux
 
 from adat.nrzidecoder                   import NRZIDecoder
-from nmigen_library.utils               import InputShiftRegister, EdgeToPulse
+from amaranth_library.utils               import InputShiftRegister, EdgeToPulse
 
 class ADATReceiver(Elaboratable):
     """

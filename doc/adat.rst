@@ -10,8 +10,7 @@ NRZI Decoder
 
 ADAT Transmitter
 ----------------
-..
-   hdl-diagram:: ../adat/transmitter.v
+.. hdl-diagram:: ../adat/transmitter.v
    :type: netlistsvg
    :module: adat_transmitter
 

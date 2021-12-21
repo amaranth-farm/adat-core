@@ -6,7 +6,7 @@
 import sys
 sys.path.append(".")
 
-from nmigen.sim import Simulator, Tick
+from amaranth.sim import Simulator, Tick
 
 from adat.receiver    import ADATReceiver
 from adat.nrzidecoder import NRZIDecoder

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import sys
-from nmigen.hdl.cd import ClockDomain
+from amaranth.hdl.cd import ClockDomain
 sys.path.append('.')
-from nmigen.sim import Simulator, Tick
+from amaranth.sim import Simulator, Tick
 
 from adat.nrzidecoder import NRZIDecoder
 from testdata    import one_empty_adat_frame, \

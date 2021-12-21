@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
 import sys
-from nmigen.cli import main
+from amaranth.cli import main
 from adat import *
 
 if __name__ == "__main__":

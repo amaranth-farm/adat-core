@@ -7,10 +7,10 @@
 
 import math
 
-from nmigen         import Elaboratable, Signal, Module
-from nmigen.lib.cdc import FFSynchronizer
+from amaranth         import Elaboratable, Signal, Module
+from amaranth.lib.cdc import FFSynchronizer
 
-from nmigen_library.utils.dividingcounter import DividingCounter
+from amaranth_library.utils.dividingcounter import DividingCounter
 
 class NRZIDecoder(Elaboratable):
     """Converts a NRZI encoded ADAT stream into a synchronous stream of bits"""
