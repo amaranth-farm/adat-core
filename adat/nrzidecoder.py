@@ -10,7 +10,7 @@ import math
 from amaranth         import Elaboratable, Signal, Module
 from amaranth.lib.cdc import FFSynchronizer
 
-from amaranth_library.utils.dividingcounter import DividingCounter
+from amlib.utils.dividingcounter import DividingCounter
 
 class NRZIDecoder(Elaboratable):
     """Converts a NRZI encoded ADAT stream into a synchronous stream of bits"""

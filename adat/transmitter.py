@@ -11,7 +11,7 @@
 from amaranth          import Elaboratable, Signal, Module, Cat, Const, Array
 from amaranth.lib.fifo import AsyncFIFO
 
-from amaranth_library.utils import NRZIEncoder
+from amlib.utils import NRZIEncoder
 
 class ADATTransmitter(Elaboratable):
     """transmit ADAT from a multiplexed stream of eight audio channels
