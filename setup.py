@@ -15,11 +15,11 @@ setup(
     use_scm_version=scm_version(),
     author="Hans Baier",
     author_email="hansfbaier@gmail.com",
-    description="ADAT transmitter and receiver FPGA cores implemented in nmigen",
+    description="ADAT transmitter and receiver FPGA cores implemented in amaranth HDL",
     license="CERN-OHL-W-2.0",
     setup_requires=["wheel", "setuptools", "setuptools_scm"],
     install_requires=[
-        "nmigen>=0.2,<0.4",
+        "amaranth>=0.2,<=0.4",
         "importlib_metadata; python_version<'3.8'",
     ],
     dependency_links=["git+https://github.com/hansfbaier/amaranth-library.git"],
