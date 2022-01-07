@@ -29,7 +29,6 @@ def test_with_samplerate(samplerate: int=48000):
     def write(addr: int, sample: int, last: bool = False, drop_valid: bool = False):
         if last:
             yield dut.last_in.eq(1)
-        yield dut.addr_in.eq(addr)
         yield dut.sample_in.eq(sample)
         yield dut.valid_in.eq(1)
         yield Tick("sync")
@@ -37,8 +36,6 @@ def test_with_samplerate(samplerate: int=48000):
             yield dut.valid_in.eq(0)
         if last:
             yield dut.last_in.eq(0)
-
-
 
     def wait(n_cycles: int):
         for _ in range(int(clockratio) * n_cycles):

@@ -1,20 +1,20 @@
 [*]
-[*] GTKWave Analyzer v3.3.106 (w)1999-2020 BSI
-[*] Fri Jan  7 12:43:51 2022
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Jan  7 22:04:56 2022
 [*]
-[dumpfile] "/home/rouven/Computer/Coden/Audio/adat-core/tests/transmitter-smoke-test-48000.vcd"
-[dumpfile_mtime] "Fri Jan  7 12:40:52 2022"
-[dumpfile_size] 310953
-[savefile] "/home/rouven/Computer/Coden/Audio/adat-core/tests/transmitter-smoke-test-48000.gtkw"
+[dumpfile] "transmitter-smoke-test-48000.vcd"
+[dumpfile_mtime] "Fri Jan  7 22:01:09 2022"
+[dumpfile_size] 283263
+[savefile] "transmitter-smoke-test-48000.gtkw"
 [timestart] 0
-[size] 1850 1011
+[size] 3828 2090
 [pos] -1 -1
-*-26.000000 40900000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-22.000000 40900000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] bench.
 [treeopen] bench.top.
 [treeopen] bench.top.transmit_fifo.
-[sst_width] 227
-[signals_width] 350
+[sst_width] 347
+[signals_width] 425
 [sst_expanded] 1
 [sst_vpaned_height] 284
 @24
@@ -32,40 +32,11 @@ bench.top.ready_out
 bench.top.underflow_out
 [color] 1
 bench.top.adat_out
-@24
-bench.top.fifo_level_out[9:0]
-@28
 bench.top.transmit_fifo.w_en
-@22
+@23
 bench.top.transmit_fifo.w_data[24:0]
 @800022
 bench.top.r_data[24:0]
-@28
-(0)bench.top.r_data[24:0]
-(1)bench.top.r_data[24:0]
-(2)bench.top.r_data[24:0]
-(3)bench.top.r_data[24:0]
-(4)bench.top.r_data[24:0]
-(5)bench.top.r_data[24:0]
-(6)bench.top.r_data[24:0]
-(7)bench.top.r_data[24:0]
-(8)bench.top.r_data[24:0]
-(9)bench.top.r_data[24:0]
-(10)bench.top.r_data[24:0]
-(11)bench.top.r_data[24:0]
-(12)bench.top.r_data[24:0]
-(13)bench.top.r_data[24:0]
-(14)bench.top.r_data[24:0]
-(15)bench.top.r_data[24:0]
-(16)bench.top.r_data[24:0]
-(17)bench.top.r_data[24:0]
-(18)bench.top.r_data[24:0]
-(19)bench.top.r_data[24:0]
-(20)bench.top.r_data[24:0]
-(21)bench.top.r_data[24:0]
-(22)bench.top.r_data[24:0]
-(23)bench.top.r_data[24:0]
-(24)bench.top.r_data[24:0]
 @1001200
 -group_end
 @28
@@ -73,37 +44,5 @@ bench.top.nrzi_encoder.data_in
 bench.top.nrzi_encoder.nrzi_out
 @24
 bench.top.transmit_counter[4:0]
-@29
-bench.top.frame_bit0
-@28
-bench.top.frame_bit1
-bench.top.frame_bit2
-bench.top.frame_bit3
-bench.top.frame_bit4
-bench.top.frame_bit5
-bench.top.frame_bit6
-bench.top.frame_bit7
-bench.top.frame_bit8
-bench.top.frame_bit9
-bench.top.frame_bit10
-bench.top.frame_bit11
-bench.top.frame_bit12
-bench.top.frame_bit13
-bench.top.frame_bit14
-bench.top.frame_bit15
-bench.top.frame_bit16
-bench.top.frame_bit17
-bench.top.frame_bit18
-bench.top.frame_bit19
-bench.top.frame_bit20
-bench.top.frame_bit21
-bench.top.frame_bit22
-bench.top.frame_bit23
-bench.top.frame_bit24
-bench.top.frame_bit25
-bench.top.frame_bit26
-bench.top.frame_bit27
-bench.top.frame_bit28
-bench.top.frame_bit29
 [pattern_trace] 1
 [pattern_trace] 0

@@ -25,14 +25,11 @@ class ADATTransmitter(Elaboratable):
     ----------
     adat_out: Signal
         the ADAT signal to be transmitted by the optical transmitter
-    addr_in: Signal
-        contains the ADAT channel number (0-7) of the current sample to be written
-        into the currently assembled ADAT frame
         This input is unused at the moment. Instead the caller needs to ensure
-        that the data is submitted in channel order.
     sample_in: Signal
         the 24 bit sample to be written into the channel slot given by addr_in
-        in the currently assembled ADAT frame
+        in the currently assembled ADAT frame. The samples need to be committed
+        in order of channel number (0-7)
     user_data_in: Signal
         the user data bits of the currently assembled frame. Will be committed,
         when ``last_in`` is strobed high
@@ -57,7 +54,6 @@ class ADATTransmitter(Elaboratable):
     def __init__(self, fifo_depth=128):
         self._fifo_depth    = fifo_depth
         self.adat_out       = Signal()
-        self.addr_in        = Signal(3)
         self.sample_in      = Signal(24)
         self.user_data_in   = Signal(4)
         self.valid_in       = Signal()
@@ -81,27 +77,26 @@ class ADATTransmitter(Elaboratable):
         m.submodules.transmit_fifo = transmit_fifo = AsyncFIFO(width=25, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
 
         # needed for input processing
-        user_bits = Signal(4)
+        user_bits     = Signal(4)
         user_bits_set = Signal()
 
         # needed for output processing
         m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
+
         transmitted_frame_bits = Array([Signal(name=f"frame_bit{b}") for b in range(30)])
-        transmitted_frame = Cat(transmitted_frame_bits)
-        transmit_counter = Signal(5)
+        transmitted_frame      = Cat(transmitted_frame_bits)
+        transmit_counter       = Signal(5)
 
         comb += [
-            self.ready_out.eq(transmit_fifo.w_rdy),
-            self.fifo_level_out.eq(transmit_fifo.w_level),
-            self.adat_out.eq(nrzi_encoder.nrzi_out),
-            nrzi_encoder.data_in.eq(transmitted_frame_bits[transmit_counter]),
-            self.underflow_out.eq(0)
+            self.ready_out       .eq(transmit_fifo.w_rdy),
+            self.fifo_level_out  .eq(transmit_fifo.w_level),
+            self.adat_out        .eq(nrzi_encoder.nrzi_out),
+            nrzi_encoder.data_in .eq(transmitted_frame_bits[transmit_counter]),
+            self.underflow_out   .eq(0)
         ]
 
         #
-        #
-        # Fill the Fifo in sync domain
-        #
+        # Fill the transmit FIFO in the sync domain
         #
 
         # make sure, w_en is only asserted when explicitly strobed
@@ -109,9 +104,9 @@ class ADATTransmitter(Elaboratable):
 
         with m.If(user_bits_set):
             sync += [
-                transmit_fifo.w_data.eq((1 << 24) | user_bits),
-                transmit_fifo.w_en.eq(1),
-                user_bits_set.eq(0)
+                transmit_fifo.w_data .eq((1 << 24) | user_bits),
+                transmit_fifo.w_en   .eq(1),
+                user_bits_set        .eq(0)
             ]
 
             comb += self.ready_out.eq(transmit_fifo.w_rdy)
@@ -119,24 +114,21 @@ class ADATTransmitter(Elaboratable):
         with m.Else():
             with m.If(self.valid_in & transmit_fifo.w_rdy):
                 sync += [
-                    transmit_fifo.w_data.eq(self.sample_in),
-                    transmit_fifo.w_en.eq(1)
+                    transmit_fifo.w_data .eq(self.sample_in),
+                    transmit_fifo.w_en   .eq(1)
                 ]
 
                 with m.If(self.last_in):
                     sync += [
-                        user_bits_set.eq(1),
-                        user_bits.eq(self.user_data_in)
+                        user_bits_set .eq(1),
+                        user_bits     .eq(self.user_data_in)
                     ]
                     # we can't process input on this cycle
                     comb += self.ready_out.eq(0)
 
         #
+        # Read the FIFO and send data in the adat domain
         #
-        # Read the Fifo and send data in adat domain
-        #
-        #
-
         # 4b/5b coding: Every 24 bit channel has 6 nibbles.
         # 1 bit before the sync pad and one bit before the user data nibble
         filler_bits = [Const(1, 1) for _ in range(7)]
