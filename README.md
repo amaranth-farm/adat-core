@@ -1,5 +1,5 @@
 # adat-core
-FPGA implementation of an ADAT receiver/transmitter using nmigen
+FPGA implementation of an ADAT receiver/transmitter using amaranth HDL
 
 Status:
 
