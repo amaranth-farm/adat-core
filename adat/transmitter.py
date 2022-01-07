@@ -13,6 +13,7 @@ from amaranth.lib.fifo import AsyncFIFO
 
 from amlib.utils import NRZIEncoder
 
+
 class ADATTransmitter(Elaboratable):
     """transmit ADAT from a multiplexed stream of eight audio channels
 
@@ -27,6 +28,8 @@ class ADATTransmitter(Elaboratable):
     addr_in: Signal
         contains the ADAT channel number (0-7) of the current sample to be written
         into the currently assembled ADAT frame
+        This input is unused at the moment. Instead the caller needs to ensure
+        that the data is submitted in channel order.
     sample_in: Signal
         the 24 bit sample to be written into the channel slot given by addr_in
         in the currently assembled ADAT frame
@@ -51,7 +54,7 @@ class ADATTransmitter(Elaboratable):
         ADAT frame will be transmitted again.
     """
 
-    def __init__(self, fifo_depth=4):
+    def __init__(self, fifo_depth=128):
         self._fifo_depth    = fifo_depth
         self.adat_out       = Signal()
         self.addr_in        = Signal(3)
@@ -60,7 +63,7 @@ class ADATTransmitter(Elaboratable):
         self.valid_in       = Signal()
         self.ready_out      = Signal()
         self.last_in        = Signal()
-        self.fifo_level_out = Signal(range(fifo_depth))
+        self.fifo_level_out = Signal(range(fifo_depth+1))
         self.underflow_out  = Signal()
 
     @staticmethod
@@ -75,78 +78,95 @@ class ADATTransmitter(Elaboratable):
         adat = m.d.adat
         comb = m.d.comb
 
-        audio_channels  = Array([Signal(24, name=f"channel{c}") for c in range(8)])
-        user_bits       = Signal(4)
+        m.submodules.transmit_fifo = transmit_fifo = AsyncFIFO(width=25, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
 
-        # 4b/5b coding: Every 24 bit channel has 6 nibbles.
-        # 1 bit before the sync pad and one bit before the user data nibble
-        filler_bits     = [Const(1, 1) for _ in range(8 * 6 + 2)]
-        sync_pad        = Const(0, 10)
+        # needed for input processing
+        user_bits = Signal(4)
+        user_bits_set = Signal()
 
-        # build ADAT frame
-        assembled_frame = Signal(256)
-        audio_bits      = Cat(audio_channels[::-1])[::-1]
-        audio_nibbles   = list(self.chunks(audio_bits, 4))
-        comb += assembled_frame.eq(Cat(zip(filler_bits, [sync_pad, reversed(user_bits)] + audio_nibbles)))
-
-        transmit_fifo = AsyncFIFO(width=256, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
-        m.submodules.transmit_fifo = transmit_fifo
+        # needed for output processing
+        m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
+        transmitted_frame_bits = Array([Signal(name=f"frame_bit{b}") for b in range(30)])
+        transmitted_frame = Cat(transmitted_frame_bits)
+        transmit_counter = Signal(5)
 
         comb += [
             self.ready_out.eq(transmit_fifo.w_rdy),
             self.fifo_level_out.eq(transmit_fifo.w_level),
+            self.adat_out.eq(nrzi_encoder.nrzi_out),
+            nrzi_encoder.data_in.eq(transmitted_frame_bits[transmit_counter]),
+            self.underflow_out.eq(0)
         ]
 
-        frame_complete = Signal()
+        #
+        #
+        # Fill the Fifo in sync domain
+        #
+        #
+
         # make sure, w_en is only asserted when explicitly strobed
         sync += transmit_fifo.w_en.eq(0)
 
-        with m.If(self.valid_in & self.ready_out):
-            sync += audio_channels[self.addr_in].eq(self.sample_in)
-
-            with m.If(self.last_in):
-                sync += [
-                    # we need to delay frame completion
-                    # by one cycle, so that the last channel
-                    # word transmitted can make it into assembled_frame
-                    frame_complete.eq(1),
-                    # user bits will be committed on the last frame
-                    user_bits.eq(self.user_data_in),
-                ]
-
-        with m.If(frame_complete):
-            # we can't process input on this cycle
-            comb += self.ready_out.eq(0)
+        with m.If(user_bits_set):
             sync += [
-                # frame complete, queue it into the FIFO
-                transmit_fifo.w_data.eq(assembled_frame),
+                transmit_fifo.w_data.eq((1 << 24) | user_bits),
                 transmit_fifo.w_en.eq(1),
-                frame_complete.eq(0)
+                user_bits_set.eq(0)
             ]
 
-        transmitted_frame_bits = Array([Signal(name=f"frame_bit{b}") for b in range(256)])
-        transmitted_frame = Cat(transmitted_frame_bits)
+            comb += self.ready_out.eq(transmit_fifo.w_rdy)
 
-        m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
-        comb += self.adat_out.eq(nrzi_encoder.nrzi_out)
-
-        transmit_counter = Signal(8)
-        # just wire up the transmitted frame bit so that it
-        # is synchronous to transmit_counter
-        # no necessity to add a cycle of latency here
-        comb += nrzi_encoder.data_in.eq(transmitted_frame_bits[transmit_counter]),
-        adat += transmit_counter.eq(transmit_counter + 1)
-
-        adat += transmit_fifo.r_en.eq(0)
-        comb += self.underflow_out.eq(0)
-
-        with m.If(transmit_counter == 255):
-            with m.If(transmit_fifo.r_rdy):
-                adat += [
-                    transmit_fifo.r_en.eq(1),
-                    transmitted_frame.eq(transmit_fifo.r_data),
+        with m.Else():
+            with m.If(self.valid_in & transmit_fifo.w_rdy):
+                sync += [
+                    transmit_fifo.w_data.eq(self.sample_in),
+                    transmit_fifo.w_en.eq(1)
                 ]
+
+                with m.If(self.last_in):
+                    sync += [
+                        user_bits_set.eq(1),
+                        user_bits.eq(self.user_data_in)
+                    ]
+                    # we can't process input on this cycle
+                    comb += self.ready_out.eq(0)
+
+        #
+        #
+        # Read the Fifo and send data in adat domain
+        #
+        #
+
+        # 4b/5b coding: Every 24 bit channel has 6 nibbles.
+        # 1 bit before the sync pad and one bit before the user data nibble
+        filler_bits = [Const(1, 1) for _ in range(7)]
+
+        adat += [
+            transmit_counter.eq(transmit_counter - 1),
+            transmit_fifo.r_en.eq(0)
+        ]
+
+        with m.If(transmit_counter == 0):
+            adat += transmit_counter.eq(0)
+            with m.If(transmit_fifo.r_rdy):
+                adat += transmit_fifo.r_en.eq(1)
+
+                with m.If(transmit_fifo.r_data[24] == 0):
+                    adat += [
+                        transmit_counter.eq(29),
+                        # generate the adat data for one channel 0b1dddd1dddd1dddd1dddd1dddd1dddd where d is the PCM audio data
+                        transmitted_frame.eq(Cat(zip(list(self.chunks(transmit_fifo.r_data[:25], 4)), filler_bits)))
+                    ]
+                with m.Else():
+                    adat += [
+                        transmit_counter.eq(15),
+                        # generate the adat sync_pad along with the user_bits 0b100000000001uuuu where u is user_data
+                        transmitted_frame.eq((1 << 15) | (1 << 4) | Cat(transmit_fifo.r_data[:5]))
+                    ]
+
             with m.Else():
                 comb += self.underflow_out.eq(1)
+                transmit_counter.eq(4), # start transmitting rather sooner than later
+                adat += transmitted_frame.eq(0x00) # explicitly stop adat output
 
         return m

@@ -105,16 +105,7 @@ def adat_decode(signal):
 
     while len(signal) >= 255:
         current_frame = []
-        for _ in range(10):
-            assert signal.pop(0) == 0
 
-        assert signal.pop(0) == 1
-
-        user_data = decode_nibble(signal)
-        signal = signal[4:]
-        print("user data: " + hex(user_data))
-
-        current_frame.append(user_data)
         for channel in range(8):
             print("channel " + str(channel))
             sample = 0
@@ -126,8 +117,21 @@ def adat_decode(signal):
                 sample += nibble << (4 * (5 - nibble_no))
             print("got sample " + hex(sample))
             current_frame.append(sample)
-        result.append(current_frame)
+
         assert signal.pop(0) == 1
+
+        for _ in range(10):
+            assert signal.pop(0) == 0
+
+        assert signal.pop(0) == 1
+
+        user_data = decode_nibble(signal)
+        signal = signal[4:]
+        print("user data: " + hex(user_data))
+
+        current_frame.append(user_data)
+
+        result.append(current_frame)
 
     return result
 
