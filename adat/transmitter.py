@@ -110,6 +110,11 @@ class ADATTransmitter(Elaboratable):
         # make sure, en is only asserted when explicitly strobed
         sync += samples_write_port.en.eq(0)
 
+        write_frame_border = lambda: [
+            transmit_fifo.w_data .eq((1 << frame_border_flag) | self.user_data_in),
+            transmit_fifo.w_en   .eq(1),
+        ]
+
         with m.FSM():
             with m.State("DATA"):
                 with m.If(transmit_fifo.w_rdy):
@@ -122,20 +127,14 @@ class ADATTransmitter(Elaboratable):
 
                         with m.If(self.last_in):
                             sync += channel_counter.eq(0)
-                            comb += [
-                                transmit_fifo.w_data .eq((1 << frame_border_flag) | self.user_data_in),
-                                transmit_fifo.w_en   .eq(1),
-                            ]
+                            comb += write_frame_border()
                             m.next = "COMMIT"
 
                     # underflow: repeat last frame
                     with m.Elif(transmit_fifo.w_level == 0):
                         sync += channel_counter.eq(0)
-                        comb += [
-                            self.underflow_out   .eq(1),
-                            transmit_fifo.w_data .eq((1 << frame_border_flag) | self.user_data_in),
-                            transmit_fifo.w_en   .eq(1),
-                        ]
+                        comb += self.underflow_out.eq(1)
+                        comb += write_frame_border()
                         m.next = "COMMIT"
 
             with m.State("COMMIT"):
