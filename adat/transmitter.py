@@ -8,7 +8,7 @@
     ADAT output is in the ADAT clock domain
 """
 
-from amaranth          import Elaboratable, Signal, Module, Cat, Const, Array
+from amaranth          import Elaboratable, Signal, Module, Cat, Const, Array, Memory
 from amaranth.lib.fifo import AsyncFIFO
 
 from amlib.utils import NRZIEncoder
@@ -26,6 +26,9 @@ class ADATTransmitter(Elaboratable):
     adat_out: Signal
         the ADAT signal to be transmitted by the optical transmitter
         This input is unused at the moment. Instead the caller needs to ensure
+    addr_in: Signal
+        contains the ADAT channel number (0-7) of the current sample to be written
+        into the currently assembled ADAT frame
     sample_in: Signal
         the 24 bit sample to be written into the channel slot given by addr_in
         in the currently assembled ADAT frame. The samples need to be committed
@@ -41,8 +44,7 @@ class ADATTransmitter(Elaboratable):
         prevent any samples to be committed into the currently assembled ADAT frame
     last_in: Signal
         needs to be strobed when the last sample has been committed into the currently
-        assembled ADAT frame. This will commit the entire frame (including ``user_bits``)
-        into the transmit FIFO.
+        assembled ADAT frame. This will commit the user bits to the current ADAT frame
     fifo_level_out: Signal
         outputs the number of entries in the transmit FIFO
     underflow_out: Signal
@@ -51,9 +53,10 @@ class ADATTransmitter(Elaboratable):
         ADAT frame will be transmitted again.
     """
 
-    def __init__(self, fifo_depth=128):
+    def __init__(self, fifo_depth=9*4):
         self._fifo_depth    = fifo_depth
         self.adat_out       = Signal()
+        self.addr_in        = Signal(3)
         self.sample_in      = Signal(24)
         self.user_data_in   = Signal(4)
         self.valid_in       = Signal()
@@ -61,6 +64,8 @@ class ADATTransmitter(Elaboratable):
         self.last_in        = Signal()
         self.fifo_level_out = Signal(range(fifo_depth+1))
         self.underflow_out  = Signal()
+
+        self.mem = Memory(width=24, depth=8, name="sample_buffer")
 
     @staticmethod
     def chunks(lst: list, n: int):
@@ -74,11 +79,13 @@ class ADATTransmitter(Elaboratable):
         adat = m.d.adat
         comb = m.d.comb
 
-        m.submodules.transmit_fifo = transmit_fifo = AsyncFIFO(width=25, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
+        samples_write_port = self.mem.write_port()
+        samples_read_port  = self.mem.read_port(domain='comb')
+        m.submodules += [samples_write_port, samples_read_port]
 
-        # needed for input processing
-        user_bits     = Signal(4)
-        user_bits_set = Signal()
+        # the highest bit in the FIFO marks a frame border
+        frame_border_flag = 24
+        m.submodules.transmit_fifo = transmit_fifo = AsyncFIFO(width=25, depth=self._fifo_depth, w_domain="sync", r_domain="adat")
 
         # needed for output processing
         m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
@@ -98,33 +105,51 @@ class ADATTransmitter(Elaboratable):
         #
         # Fill the transmit FIFO in the sync domain
         #
+        channel_counter = Signal(3)
 
-        # make sure, w_en is only asserted when explicitly strobed
-        sync += transmit_fifo.w_en.eq(0)
+        # make sure, en is only asserted when explicitly strobed
+        sync += samples_write_port.en.eq(0)
 
-        with m.If(user_bits_set):
-            sync += [
-                transmit_fifo.w_data .eq((1 << 24) | user_bits),
-                transmit_fifo.w_en   .eq(1),
-                user_bits_set        .eq(0)
-            ]
+        with m.FSM():
+            with m.State("DATA"):
+                with m.If(transmit_fifo.w_rdy):
+                    with m.If(self.valid_in):
+                        sync += [
+                            samples_write_port.data.eq(self.sample_in),
+                            samples_write_port.addr.eq(self.addr_in),
+                            samples_write_port.en.eq(1),
+                        ]
 
-            comb += self.ready_out.eq(transmit_fifo.w_rdy)
+                        with m.If(self.last_in):
+                            sync += channel_counter.eq(0)
+                            comb += [
+                                transmit_fifo.w_data .eq((1 << frame_border_flag) | self.user_data_in),
+                                transmit_fifo.w_en   .eq(1),
+                            ]
+                            m.next = "COMMIT"
 
-        with m.Else():
-            with m.If(self.valid_in & transmit_fifo.w_rdy):
-                sync += [
-                    transmit_fifo.w_data .eq(self.sample_in),
-                    transmit_fifo.w_en   .eq(1)
-                ]
+                    # underflow: repeat last frame
+                    with m.Elif(transmit_fifo.w_level == 0):
+                        sync += channel_counter.eq(0)
+                        comb += [
+                            self.underflow_out   .eq(1),
+                            transmit_fifo.w_data .eq((1 << frame_border_flag) | self.user_data_in),
+                            transmit_fifo.w_en   .eq(1),
+                        ]
+                        m.next = "COMMIT"
 
-                with m.If(self.last_in):
-                    sync += [
-                        user_bits_set .eq(1),
-                        user_bits     .eq(self.user_data_in)
+            with m.State("COMMIT"):
+                with m.If(transmit_fifo.w_rdy):
+                    comb += [
+                        self.ready_out.eq(0),
+                        samples_read_port.addr .eq(channel_counter),
+                        transmit_fifo.w_data   .eq(samples_read_port.data),
+                        transmit_fifo.w_en     .eq(1)
                     ]
-                    # we can't process input on this cycle
-                    comb += self.ready_out.eq(0)
+                    sync += channel_counter.eq(channel_counter + 1)
+
+                    with m.If(channel_counter == 7):
+                        m.next = "DATA"
 
         #
         # Read the FIFO and send data in the adat domain
@@ -143,7 +168,7 @@ class ADATTransmitter(Elaboratable):
             with m.If(transmit_fifo.r_rdy):
                 adat += transmit_fifo.r_en.eq(1)
 
-                with m.If(transmit_fifo.r_data[24] == 0):
+                with m.If(transmit_fifo.r_data[frame_border_flag] == 0):
                     adat += [
                         transmit_counter.eq(29),
                         # generate the adat data for one channel 0b1dddd1dddd1dddd1dddd1dddd1dddd where d is the PCM audio data
@@ -157,7 +182,6 @@ class ADATTransmitter(Elaboratable):
                     ]
 
             with m.Else():
-                comb += self.underflow_out.eq(1)
                 transmit_counter.eq(4), # start transmitting rather sooner than later
                 adat += transmitted_frame.eq(0x00) # explicitly stop adat output
 
