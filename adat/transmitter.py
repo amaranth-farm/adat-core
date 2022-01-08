@@ -182,7 +182,10 @@ class ADATTransmitter(Elaboratable):
                     ]
 
             with m.Else():
-                transmit_counter.eq(4), # start transmitting rather sooner than later
-                adat += transmitted_frame.eq(0x00) # explicitly stop adat output
+                # this should not happen: panic / stop transmitting.
+                adat += [
+                    transmitted_frame.eq(0x00),
+                    transmit_counter.eq(4),
+                ]
 
         return m
