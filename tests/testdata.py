@@ -117,7 +117,7 @@ def adat_decode(signal):
         assert signal.pop(0) == 1, print_assert_failure_context(signal)
 
         for i in range(10):
-            assert signal.pop(0) == 1, "Counter was {}; {}".format(i, print_assert_failure_context(signal))
+            assert signal.pop(0) == 0, "Counter was {}; {}".format(i, print_assert_failure_context(signal))
 
         assert signal.pop(0) == 1, print_assert_failure_context(signal)
 
