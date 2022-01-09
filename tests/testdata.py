@@ -96,6 +96,15 @@ def bits_to_int(bitlist):
         out = (out << 1) | bit
     return out
 
+def print_frame(frame):
+    return ", ".join("0x{}".format(num) for num in frame)
+
+def print_assert_failure(frame):
+    return "Result was: {}".format(print_frame(frame))
+
+def print_assert_failure_context(signal):
+    return "Next 256 signal bits are: {}".format(signal[:256])
+
 def adat_decode(signal):
     """decode adat frames, after NRZI-decoding"""
     result = []
@@ -105,31 +114,30 @@ def adat_decode(signal):
 
     while len(signal) >= 255:
         current_frame = []
+        assert signal.pop(0) == 1, print_assert_failure_context(signal)
 
-        for channel in range(8):
-            print("channel " + str(channel))
-            sample = 0
-            for nibble_no in range(6):
-                assert signal.pop(0) == 1
-                nibble = decode_nibble(signal)
-                signal = signal[4:]
-                print("nibble: " + bin(nibble), end=" ")
-                sample += nibble << (4 * (5 - nibble_no))
-            print("got sample " + hex(sample))
-            current_frame.append(sample)
+        for i in range(10):
+            assert signal.pop(0) == 0, "Counter was {}; {}".format(i, print_assert_failure_context(signal))
 
-        assert signal.pop(0) == 1
-
-        for _ in range(10):
-            assert signal.pop(0) == 0
-
-        assert signal.pop(0) == 1
+        assert signal.pop(0) == 1, print_assert_failure_context(signal)
 
         user_data = decode_nibble(signal)
         signal = signal[4:]
         print("user data: " + hex(user_data))
 
         current_frame.append(user_data)
+
+        for channel in range(8):
+            print("channel " + str(channel))
+            sample = 0
+            for nibble_no in range(6):
+                assert signal.pop(0) == 1, print_assert_failure_context(signal)
+                nibble = decode_nibble(signal)
+                signal = signal[4:]
+                print("nibble: " + bin(nibble), end=" ")
+                sample += nibble << (4 * (5 - nibble_no))
+            print("got sample " + hex(sample))
+            current_frame.append(sample)
 
         result.append(current_frame)
 
