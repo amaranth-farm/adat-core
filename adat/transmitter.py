@@ -117,12 +117,12 @@ class ADATTransmitter(Elaboratable):
 
         with m.FSM():
             with m.State("DATA"):
-                with m.If(transmit_fifo.w_rdy):
+                with m.If(self.ready_out):
                     with m.If(self.valid_in):
                         sync += [
                             samples_write_port.data.eq(self.sample_in),
                             samples_write_port.addr.eq(self.addr_in),
-                            samples_write_port.en.eq(1),
+                            samples_write_port.en.eq(1)
                         ]
 
                         with m.If(self.last_in):
