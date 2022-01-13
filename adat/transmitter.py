@@ -65,13 +65,12 @@ class ADATTransmitter(Elaboratable):
         self.fifo_level_out = Signal(range(fifo_depth+1))
         self.underflow_out  = Signal()
 
-        self.mem = Memory(width=24, depth=8, name="sample_buffer")
-
     @staticmethod
     def chunks(lst: list, n: int):
         """Yield successive n-sized chunks from lst."""
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
+
 
     def elaborate(self, platform) -> Module:
         m = Module()
@@ -79,9 +78,7 @@ class ADATTransmitter(Elaboratable):
         adat = m.d.adat
         comb = m.d.comb
 
-        samples_write_port = self.mem.write_port()
-        samples_read_port  = self.mem.read_port(domain='comb')
-        m.submodules += [samples_write_port, samples_read_port]
+        audio_channels = Array([Signal(24, name=f"channel{c}") for c in range(8)])
 
         # the highest bit in the FIFO marks a frame border
         frame_border_flag = 24
@@ -108,11 +105,11 @@ class ADATTransmitter(Elaboratable):
         channel_counter = Signal(3)
 
         # make sure, en is only asserted when explicitly strobed
-        sync += samples_write_port.en.eq(0)
+        comb += transmit_fifo.w_en.eq(0)
 
         write_frame_border = [
             transmit_fifo.w_data .eq((1 << frame_border_flag) | self.user_data_in),
-            transmit_fifo.w_en   .eq(1),
+            transmit_fifo.w_en   .eq(1)
         ]
 
         with m.FSM():
@@ -120,9 +117,7 @@ class ADATTransmitter(Elaboratable):
                 with m.If(self.ready_out):
                     with m.If(self.valid_in):
                         sync += [
-                            samples_write_port.data.eq(self.sample_in),
-                            samples_write_port.addr.eq(self.addr_in),
-                            samples_write_port.en.eq(1)
+                            audio_channels[self.addr_in].eq(self.sample_in)
                         ]
 
                         with m.If(self.last_in):
@@ -141,9 +136,8 @@ class ADATTransmitter(Elaboratable):
                 with m.If(transmit_fifo.w_rdy):
                     comb += [
                         self.ready_out.eq(0),
-                        samples_read_port.addr .eq(channel_counter),
-                        transmit_fifo.w_data   .eq(samples_read_port.data),
-                        transmit_fifo.w_en     .eq(1)
+                        transmit_fifo.w_data.eq(audio_channels[channel_counter]),
+                        transmit_fifo.w_en.eq(1)
                     ]
                     sync += channel_counter.eq(channel_counter + 1)
 
@@ -163,7 +157,6 @@ class ADATTransmitter(Elaboratable):
         ]
 
         with m.If(transmit_counter == 0):
-            adat += transmit_counter.eq(0)
             with m.If(transmit_fifo.r_rdy):
                 adat += transmit_fifo.r_en.eq(1)
 
@@ -177,14 +170,14 @@ class ADATTransmitter(Elaboratable):
                     adat += [
                         transmit_counter.eq(15),
                         # generate the adat sync_pad along with the user_bits 0b100000000001uuuu where u is user_data
-                        transmitted_frame.eq((1 << 15) | (1 << 4) | Cat(transmit_fifo.r_data[:5]))
+                        transmitted_frame.eq((1 << 15) | (1 << 4) | transmit_fifo.r_data[:5])
                     ]
 
             with m.Else():
                 # this should not happen: panic / stop transmitting.
                 adat += [
                     transmitted_frame.eq(0x00),
-                    transmit_counter.eq(4),
+                    transmit_counter.eq(4)
                 ]
 
         return m
