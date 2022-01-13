@@ -87,15 +87,14 @@ class ADATTransmitter(Elaboratable):
         # needed for output processing
         m.submodules.nrzi_encoder = nrzi_encoder = NRZIEncoder()
 
-        transmitted_frame_bits = Array([Signal(name=f"frame_bit{b}") for b in range(30)])
-        transmitted_frame      = Cat(transmitted_frame_bits)
+        transmitted_frame      = Signal(30)
         transmit_counter       = Signal(5)
 
         comb += [
             self.ready_out       .eq(transmit_fifo.w_rdy),
             self.fifo_level_out  .eq(transmit_fifo.w_level),
             self.adat_out        .eq(nrzi_encoder.nrzi_out),
-            nrzi_encoder.data_in .eq(transmitted_frame_bits[transmit_counter]),
+            nrzi_encoder.data_in .eq(transmitted_frame.bit_select(transmit_counter, 1)),
             self.underflow_out   .eq(0)
         ]
 
