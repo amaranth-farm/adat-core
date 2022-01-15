@@ -156,14 +156,12 @@ class ADATTransmitter(Elaboratable):
         # 1 bit before the sync pad and one bit before the user data nibble
         filler_bits = [Const(1, 1) for _ in range(7)]
 
-        adat += [
-            transmit_counter.eq(transmit_counter - 1),
-            transmit_fifo.r_en.eq(0)
-        ]
+        adat += transmit_counter.eq(transmit_counter - 1)
+        comb += transmit_fifo.r_en.eq(0)
 
         with m.If(transmit_counter == 0):
             with m.If(transmit_fifo.r_rdy):
-                adat += transmit_fifo.r_en.eq(1)
+                comb += transmit_fifo.r_en.eq(1)
 
                 with m.If(transmit_fifo.r_data[frame_border_flag] == 0):
                     adat += [
