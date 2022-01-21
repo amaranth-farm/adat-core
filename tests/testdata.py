@@ -99,11 +99,19 @@ def bits_to_int(bitlist):
 def print_frame(frame):
     return ", ".join("0x{}".format(num) for num in frame)
 
-def print_assert_failure(frame):
-    return "Result was: {}".format(print_frame(frame))
+
+def print_assert_failure(receivedFrame, expectedFrame = None):
+    if expectedFrame is not None:
+        return "Expected:\n{}\nResult was:\n{}".format(print_frame(expectedFrame), print_frame(receivedFrame))
+    else:
+        return "Result was: {}".format(print_frame(receivedFrame))
 
 def print_assert_failure_context(signal):
     return "Next 256 signal bits are: {}".format(signal[:256])
+
+def validate_output(receivedFrame, expectedFrame):
+    assert receivedFrame == expectedFrame, print_assert_failure(receivedFrame, expectedFrame)
+
 
 def adat_decode(signal):
     """decode adat frames, after NRZI-decoding"""
