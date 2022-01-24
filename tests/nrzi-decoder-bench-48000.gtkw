@@ -1,61 +1,45 @@
 [*]
-[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Fri Apr  9 22:04:26 2021
+[*] GTKWave Analyzer v3.3.106 (w)1999-2020 BSI
+[*] Fri Jan 21 17:31:27 2022
 [*]
-[dumpfile] "nrzi-decoder-bench-48000.vcd"
-[dumpfile_mtime] "Fri Apr  9 22:01:59 2021"
-[dumpfile_size] 1469939
-[savefile] "nrzi-decoder-bench-48000.gtkw"
-[timestart] 69460000
-[size] 3822 2022
+[dumpfile] "./nrzi-decoder-bench-48000.vcd"
+[dumpfile_mtime] "Fri Jan 21 17:31:12 2022"
+[dumpfile_size] 1966637
+[savefile] "./nrzi-decoder-bench-48000.gtkw"
+[timestart] 0
+[size] 1850 1011
 [pos] -1 -1
-*-19.631739 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[treeopen] top.
+*-25.631739 48195000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] bench.
+[treeopen] bench.top.
+[treeopen] bench.top.nrzidecoder.
 [sst_width] 453
 [signals_width] 435
 [sst_expanded] 1
 [sst_vpaned_height] 622
 @28
-top.clk
-top.fsm_state
-[color] 3
-top.invalid_frame_in
-[color] 3
-top.nrzi
-[color] 2
-top.nrzi_prev
+bench.top.clk
+bench.top.adat_clk
+bench.top.nrzidecoder.invalid_frame_in
+bench.top.nrzi_in
+bench.top.nrzidecoder.nrzi
+bench.top.nrzidecoder.data_out
 @29
-[color] 3
-top.recovered_clock_out
+bench.top.nrzidecoder.data_out_en
 @28
-top.sync_counter.active_in
-top.got_edge
-@8022
-top.bit_counter[6:0]
-top.dead_counter[7:0]
-@8024
-top.sync_counter.counter_out[6:0]
-@20000
--
-@8024
-top.sync_counter.divided_counter_out[6:0]
+bench.top.nrzidecoder.recovered_clock_out
+@24
+bench.top.nrzidecoder.bit_counter[6:0]
+bench.top.nrzidecoder.counter_out[6:0]
+bench.top.nrzidecoder.dead_counter[7:0]
+@22
+bench.top.nrzidecoder.divided_counter_out[6:0]
 @28
-top.sync_counter.active_in
-[color] 3
-top.sync_counter.reset_in
-top.sync_counter.rst
-top.nrzi_prev
-[color] 3
-top.data_out_en
-[color] 2
-top.data_out
-[color] 2
-top.running
-@20000
--
-@8022
-top.dead_counter[7:0]
-@20000
--
+bench.top.nrzidecoder.fsm_state
+bench.top.nrzidecoder.got_edge
+bench.top.nrzidecoder.nrzi_prev
+bench.top.nrzidecoder.output
+bench.top.nrzidecoder.reset_in
+bench.top.nrzidecoder.running
 [pattern_trace] 1
 [pattern_trace] 0
