@@ -57,19 +57,19 @@ def test_with_samplerate(samplerate: int=48000):
     sixteen_adat_frames = sixteen_frames_with_channel_num_msb_and_sample_num()
     interrupted_adat_stream = [0] * 64
 
-    plain_testdata = one_empty_adat_frame() + \
+    testdata = one_empty_adat_frame() + \
         sixteen_adat_frames[0:256] + \
         interrupted_adat_stream + \
         sixteen_adat_frames[256:]
 
-    testdata = encode_nrzi(plain_testdata)
+    testdata_nrzi = encode_nrzi(testdata)
 
-    no_cycles = len(testdata)
+    no_cycles = len(testdata_nrzi)
 
     # Send the adat stream
     def adat_process():
         bitcount :int = 0
-        for bit in testdata: #[224:512 * 2]:
+        for bit in testdata_nrzi: #[224:512 * 2]:
             if (bitcount == 4 * 256 + 64):
                 yield dut.invalid_frame_in.eq(1)
                 yield Tick("adat")

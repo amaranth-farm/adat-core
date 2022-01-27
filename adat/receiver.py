@@ -44,7 +44,7 @@ class ADATReceiver(Elaboratable):
         active_channel = Signal(3)
         # counts the number of bits output
         bit_counter      = Signal(8)
-        # counts the bit position iside a nibble
+        # counts the bit position inside a nibble
         nibble_counter   = Signal(3)
         # counts, how many 0 bits it got in a row
         sync_bit_counter = Signal(4)
