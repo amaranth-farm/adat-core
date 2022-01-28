@@ -57,6 +57,7 @@ def test_with_samplerate(samplerate: int=48000):
 
     sim = Simulator(dut)
     sim.add_clock(1.0/clk_freq, domain="sync")
+    sim.add_clock(1.0/adat_freq, domain="adat")
 
     sixteen_adat_frames = sixteen_frames_with_channel_num_msb_and_sample_num()
 
@@ -123,6 +124,7 @@ def test_with_samplerate(samplerate: int=48000):
         print("Success!")
 
     sim.add_sync_process(sync_process, domain="sync")
+    sim.add_sync_process(adat_process, domain="adat")
     with sim.write_vcd(f'receiver-smoke-test-{str(samplerate)}.vcd'):
         sim.run()
 
