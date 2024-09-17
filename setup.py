@@ -19,7 +19,7 @@ setup(
     license="CERN-OHL-W-2.0",
     setup_requires=["wheel", "setuptools", "setuptools_scm"],
     install_requires=[
-        "amaranth>=0.2,<=0.4",
+        "amaranth>=0.2,<0.5",
         "importlib_metadata; python_version<'3.8'",
     ],
     packages=find_packages(),
